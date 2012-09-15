@@ -33,12 +33,12 @@ public class GameThread extends Thread {
 	
 	private Timer timer;
 	
-	//PROVISIONAL
+	/**** PROVISIONAL ****/
 	private float time = 0;
 	private float frequency = 0.5f;
 	private int i = 0;
 	private int[] colors;
-	//PROVISIONAL
+	/**** PROVISIONAL ****/
 	
 	public GameThread (SurfaceHolder surfaceHolder, Context context, Handler handler) {
 		mSurfaceHolder = surfaceHolder;
