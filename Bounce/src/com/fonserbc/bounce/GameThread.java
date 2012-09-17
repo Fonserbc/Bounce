@@ -1,5 +1,6 @@
 package com.fonserbc.bounce;
 
+import utils.FramesPerSecond;
 import utils.Timer;
 import utils.Vector2f;
 
@@ -45,6 +46,8 @@ public class GameThread extends Thread {
 	
 	private Timer timer;
 	
+	private FramesPerSecond FPS;
+	
 	/**** PROVISIONAL ****/
 	private float time = 0;
 	private float frequency = 0.5f;
@@ -64,7 +67,8 @@ public class GameThread extends Thread {
 		
 		mDifficulty = DIFFICULTY_MEDIUM;
 		
-		timer = new Timer();		
+		timer = new Timer();
+		FPS = new FramesPerSecond(50);
 	}
 	
 	public void setState(int mode) {
@@ -124,6 +128,8 @@ public class GameThread extends Thread {
 	            Canvas c = null;
 	            try {
 	                c = mSurfaceHolder.lockCanvas(null);
+	                FPS.tickStart();
+	                
 	                synchronized (mSurfaceHolder) {
 	                    update();
 	                    doDraw(c);
@@ -132,6 +138,14 @@ public class GameThread extends Thread {
 	                if (c != null) {
 	                    mSurfaceHolder.unlockCanvasAndPost(c);
 	                }
+	                FPS.tickEnd();
+	            }
+	            
+	            long sleepTime = FPS.getSleepTime();
+	            if (sleepTime > 0) {
+	            	try {
+	            		sleep(sleepTime);
+	            	} catch (InterruptedException e) {}
 	            }
 	        }
 		}
@@ -185,6 +199,8 @@ public class GameThread extends Thread {
 			canvas.drawColor(colors[it]);
 			
 			canvas.drawLine(line[0], line[1], line[2], line[3], linePaint);
+			
+			FPS.doDraw(canvas);
 		}
 	}
 	

@@ -68,6 +68,16 @@ public class MainActivity extends Activity {
         }
     }
     
+    protected void onRestart() {
+    	super.onStart();
+    	Log.v("BOUNCE", "onRestart");
+    }
+    
+    protected void onStart() {
+    	super.onStart();
+    	Log.v("BOUNCE", "onStart");
+    }
+    
     protected void onPause() {
     	super.onPause();
     	Log.v("BOUNCE", "onPause");
@@ -83,7 +93,6 @@ public class MainActivity extends Activity {
     protected void onStop() {
     	super.onStop();
     	Log.v("BOUNCE", "onStop");
-    	thread.setAlive(false);
     }
     
     @Override
