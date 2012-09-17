@@ -26,7 +26,7 @@ public class GameThread extends Thread {
 	
     public int mMode;
     
-    private int mLastMode;
+    private int mLastMode = -1;
     
     public int mDifficulty;
     
@@ -36,6 +36,8 @@ public class GameThread extends Thread {
 	public boolean mRun = false;
 	
 	public boolean mAlive = true;
+	
+	public boolean mRestored = false;
 	
 	private SurfaceHolder mSurfaceHolder;
 	private Context mContext;
@@ -71,23 +73,19 @@ public class GameThread extends Thread {
            
            if (mMode == STATE_RUNNING) {
         	   mRun = true;
-        	   Log.v("STATE", "RUNNING");
+        	   Log.v("BOUNCE", "STATE RUNNING");
            }
            else if (mMode == STATE_PAUSE) {
         	   mRun = false;
-        	   Log.v("STATE", "PAUSE");
+        	   Log.v("BOUNCE", "STATE PAUSE");
            }
         }
 	}
 
-	public void doStart() {
-        synchronized (mSurfaceHolder) {
-        	setState(STATE_RUNNING);
-        	
+	public void doStart(int lastState) {
+        synchronized (mSurfaceHolder) {        	
         	mWidth = mSurfaceHolder.getSurfaceFrame().width();
     		mHeight = mSurfaceHolder.getSurfaceFrame().height();
-        	
-    		Log.v("LINE", "Sizes: "+mWidth+", "+mHeight);
     		
         	colors = new int[3];
         	colors[0] = Color.RED;
@@ -111,6 +109,8 @@ public class GameThread extends Thread {
     		linePaint = new Paint();
     		linePaint.setColor(Color.BLACK);
     		linePaint.setStrokeWidth(3);
+    		
+    		setState(lastState);
         }
 	}
 
@@ -125,10 +125,8 @@ public class GameThread extends Thread {
 	            try {
 	                c = mSurfaceHolder.lockCanvas(null);
 	                synchronized (mSurfaceHolder) {
-	                    if (mMode == STATE_RUNNING) {
-	                    	update();
-	                    	doDraw(c);
-	                    }
+	                    update();
+	                    doDraw(c);
 	                }
 	            } finally {
 	                if (c != null) {
@@ -147,7 +145,7 @@ public class GameThread extends Thread {
     }
 	
 	public void unPause() {
-        setState(mLastMode);
+        if (mLastMode < 0) setState(mLastMode);
     }
 	
 	@Deprecated
@@ -194,28 +192,35 @@ public class GameThread extends Thread {
         synchronized (mSurfaceHolder) {
         	if (map != null) {
         		map.putInt("mDifficulty", mDifficulty);
-        		map.putFloatArray("line", line);
-        		map.putFloatArray("lineDir", lineDir);
-        		map.putFloat("time", time);
-        		map.putInt("it", it);
+        		
+        		Log.v("BOUNCE", "saved State");
         	}
         }
         return map;
 	}
 
+	
+	/**
+	 * Here you should just save IMPORTANT values that you don't want to loose if the app gets killed by the OS
+	 * 
+	 * mDifficulty is just an example
+	 */
 	public void restoreState(Bundle savedState) {
-		synchronized (mSurfaceHolder) {
-			setState(STATE_PAUSE);
+		synchronized (mSurfaceHolder) {			
+			Log.v("BOUNCE", "restoring State");
 			
 			mDifficulty = savedState.getInt("mDifficulty");
-			line = savedState.getFloatArray("line");
-			lineDir = savedState.getFloatArray("lineDir");
-			time = savedState.getFloat("time");
-			it = savedState.getInt("it");
+			
+			mRestored = true;
         }
 	}
 
 	public void setAlive(boolean b) {
-		mAlive = b;		
+		mAlive = b;
+		Log.v("BOUNCE", "Set Alive: "+b);
+	}
+
+	public int getLastState() {
+		return mLastMode;
 	}
 }

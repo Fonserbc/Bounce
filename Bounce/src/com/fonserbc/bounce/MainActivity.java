@@ -12,17 +12,24 @@ import android.view.Window;
 import android.view.WindowManager;
 
 public class MainActivity extends Activity {
+	
+	/**
+	 * I'm using tag "BOUNCE" for all the Verbose logs
+	 * 
+	 */
 
 	private static final int MENU_EXIT = 1;
 	
 	private GameView gameView;
-	private GameThread thread;
+	public GameThread thread;
 	
 	private AlertDialog pauseMenu;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        Log.v("BOUNCE", "Activity onCreate");
         
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -33,7 +40,6 @@ public class MainActivity extends Activity {
         thread = gameView.getThread();
         
         if (savedInstanceState == null) {
-        	thread.setState(thread.STATE_READY);
         	Log.v("BOUNCE", "Saved instance was null");
         }
         else {
@@ -71,22 +77,21 @@ public class MainActivity extends Activity {
     protected void onResume() {
     	super.onResume();
     	Log.v("BOUNCE", "onResume");
-    	thread.unPause();
+    	if (thread != null) thread.unPause();
     }
     
     protected void onStop() {
     	super.onStop();
-    	Log.v("BOUNCE", "onPause");
+    	Log.v("BOUNCE", "onStop");
     	thread.setAlive(false);
     }
     
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        
-        thread.saveState(outState);
-        
         Log.v("BOUNCE", "on Save Instance State");
+        
+        thread.saveState(outState);       
     }
     
     @Override
