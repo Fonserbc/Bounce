@@ -1,4 +1,4 @@
-package utils;
+package com.fonserbc.bounce.utils;
 
 import java.text.DecimalFormat;
 

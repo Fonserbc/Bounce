@@ -1,8 +1,8 @@
 package com.fonserbc.bounce;
 
-import utils.FramesPerSecond;
-import utils.Timer;
-import utils.Vector2f;
+import com.fonserbc.bounce.utils.FramesPerSecond;
+import com.fonserbc.bounce.utils.Timer;
+import com.fonserbc.bounce.utils.Vector2f;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -48,11 +48,9 @@ public class GameThread extends Thread {
 	
 	private FramesPerSecond FPS;
 	
+	private Scene scene;
+	
 	/**** PROVISIONAL ****/
-	private float time = 0;
-	private float frequency = 0.5f;
-	private int it = 0;
-	private int[] colors;
 	private float[] lineBounds;
 	private float[] line;
 	private float[] lineDir;
@@ -69,6 +67,7 @@ public class GameThread extends Thread {
 		
 		timer = new Timer();
 		FPS = new FramesPerSecond(50);
+		scene = new Scene();
 	}
 	
 	public void setState(int mode) {
@@ -90,11 +89,6 @@ public class GameThread extends Thread {
         synchronized (mSurfaceHolder) {        	
         	mWidth = mSurfaceHolder.getSurfaceFrame().width();
     		mHeight = mSurfaceHolder.getSurfaceFrame().height();
-    		
-        	colors = new int[3];
-        	colors[0] = Color.RED;
-    		colors[1] = Color.GREEN;
-    		colors[2] = Color.BLUE;
     		
     		line = new float[4];
     		line[0] = mWidth/4;
@@ -128,7 +122,7 @@ public class GameThread extends Thread {
 	            Canvas c = null;
 	            try {
 	                c = mSurfaceHolder.lockCanvas(null);
-	                FPS.tickStart();
+	                //FPS.tickStart();
 	                
 	                synchronized (mSurfaceHolder) {
 	                    update();
@@ -138,10 +132,11 @@ public class GameThread extends Thread {
 	                if (c != null) {
 	                    mSurfaceHolder.unlockCanvasAndPost(c);
 	                }
-	                FPS.tickEnd();
+	                //FPS.tickEnd();
 	            }
 	            
-	            long sleepTime = FPS.getSleepTime();
+	            //long sleepTime = FPS.getSleepTime();
+	            long sleepTime = -1;
 	            if (sleepTime > 0) {
 	            	try {
 	            		sleep(sleepTime);
@@ -169,12 +164,6 @@ public class GameThread extends Thread {
 	
 	private void update() {
 		float deltaTime = timer.tick();
-		time += deltaTime;
-		
-		if (time > frequency) {
-			it = (it+1)%colors.length;
-			time = 0;
-		}
 		
 		for (int i = 0; i < line.length; ++i) {
 			line[i] += lineDir[i]*lineSpeed*deltaTime;
@@ -196,11 +185,11 @@ public class GameThread extends Thread {
 	
 	private void doDraw (Canvas canvas) {
 		if (canvas != null) {
-			canvas.drawColor(colors[it]);
+			scene.doDraw(canvas);
 			
 			canvas.drawLine(line[0], line[1], line[2], line[3], linePaint);
 			
-			FPS.doDraw(canvas);
+			//FPS.doDraw(canvas);
 		}
 	}
 	
