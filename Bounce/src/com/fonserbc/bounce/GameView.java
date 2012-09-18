@@ -19,33 +19,36 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         holder.addCallback(this);
 		
         thread = new GameThread(holder, mContext, null);
-        thread.doStart();
         
 		context.getResources();
 		Log.v("BOUNCE", "GameView");		
 		setFocusable(true);
+		setFocusableInTouchMode(true);
 	}
 
 	public void surfaceCreated(SurfaceHolder holder) {
 		Log.v("BOUNCE", "surfaceCreated");
-		
-		if (thread.getState()==Thread.State.TERMINATED) {
-			thread = new GameThread(holder, mContext, null);
-	        thread.doStart();
-		}
-		thread.setRunning(true);
-        thread.start();
 	}
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
 		Log.v("BOUNCE", "surfaceChanged");
+
+		int lastState = GameThread.STATE_RUNNING;
+		if (thread.getState()==Thread.State.TERMINATED) {
+			lastState = thread.getLastState();
+			thread = new GameThread(holder, mContext, null);
+			((MainActivity) mContext).thread = thread;
+			Log.v("BOUNCE", "Thread was TERMINATED");
+		}
+		thread.doStart(lastState);
+		thread.start();
 	}
 	
 	public void surfaceDestroyed(SurfaceHolder arg0) {
 		Log.v("BOUNCE", "surfaceDestroyed");
 		boolean retry = true;
-        thread.setRunning(false);
+        thread.setAlive(false);
         while (retry) {
             try {
                 thread.join();
