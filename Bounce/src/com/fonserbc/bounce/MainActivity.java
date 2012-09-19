@@ -23,7 +23,7 @@ public class MainActivity extends Activity {
 	private GameView gameView;
 	public GameThread thread;
 	
-	private AlertDialog pauseMenu;
+	public AlertDialog pauseMenu;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {

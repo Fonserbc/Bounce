@@ -5,6 +5,8 @@ import com.fonserbc.bounce.utils.Timer;
 import com.fonserbc.bounce.utils.Vector2f;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -24,6 +26,8 @@ public class GameThread extends Thread {
     public static final int STATE_READY = 3;
     public static final int STATE_RUNNING = 4;
     public static final int STATE_WIN = 5;
+    
+    public static final int MAX_TRAMPOLINES = 3;
 	
     public int mMode;
     
@@ -50,13 +54,13 @@ public class GameThread extends Thread {
 	
 	private Scene scene;
 	
-	/**** PROVISIONAL ****/
-	private float[] lineBounds;
-	private float[] line;
-	private float[] lineDir;
-	private Paint linePaint;
-	private float lineSpeed = 200f;
-	/**** PROVISIONAL ****/
+	private Trampoline[] trampolines;
+	private int nTramp = 0;
+	
+	private Character[] characters;
+	private int nChar = 0;
+	
+	private Bitmap characterImage;
 	
 	public GameThread (SurfaceHolder surfaceHolder, Context context, Handler handler) {
 		mSurfaceHolder = surfaceHolder;
@@ -68,6 +72,11 @@ public class GameThread extends Thread {
 		timer = new Timer();
 		FPS = new FramesPerSecond(50);
 		scene = new Scene();
+		
+		trampolines = new Trampoline[3];
+		characters = new Character[3];
+		trampolines[nTramp++] = new Trampoline(this);
+		characters[nChar++] = new Character(this);
 	}
 	
 	public void setState(int mode) {
@@ -90,23 +99,13 @@ public class GameThread extends Thread {
         	mWidth = mSurfaceHolder.getSurfaceFrame().width();
     		mHeight = mSurfaceHolder.getSurfaceFrame().height();
     		
-    		line = new float[4];
-    		line[0] = mWidth/4;
-    		line[1] = 0;
-    		line[2] = 3*mWidth/4;
-    		line[3] = mHeight;
+    		for (int i = 0; i < nTramp; ++i)
+    			trampolines[i].doStart();
     		
-    		lineDir = new float[4];
-    		lineDir[0] = lineDir [3] = -1;
-    		lineDir[1] = lineDir [2] = 1;
+    		characterImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.character), mWidth/10, mHeight/10, false);
     		
-    		lineBounds = new float[2];
-    		lineBounds[0] = mWidth;
-    		lineBounds[1] = mHeight;
-    		
-    		linePaint = new Paint();
-    		linePaint.setColor(Color.BLACK);
-    		linePaint.setStrokeWidth(3);
+    		for (int i = 0; i < nChar; ++i)
+    			characters[i].doStart(characterImage);
     		
     		setState(lastState);
         }
@@ -165,29 +164,22 @@ public class GameThread extends Thread {
 	private void update() {
 		float deltaTime = timer.tick();
 		
-		for (int i = 0; i < line.length; ++i) {
-			line[i] += lineDir[i]*lineSpeed*deltaTime;
-			
-			if (lineDir[i] < 0) {
-				if (line[i] < 0) {
-					line[i] = 0;
-					lineDir[i] = 1;
-				}
-			}
-			else {
-				if (line[i] > lineBounds[i%2]) {
-					line[i] = lineBounds[i%2];
-					lineDir[i] = -1;
-				}
-			}
-		}
+		for (int i = 0; i < nTramp; ++i)
+			trampolines[i].update(deltaTime);
+		
+		for (int i = 0; i < nChar; ++i)
+			characters[i].update(deltaTime);
 	}
 	
 	private void doDraw (Canvas canvas) {
 		if (canvas != null) {
 			scene.doDraw(canvas);
 			
-			canvas.drawLine(line[0], line[1], line[2], line[3], linePaint);
+			for (int i = 0; i < nTramp; ++i)
+				trampolines[i].doDraw(canvas);
+			
+			for (int i = 0; i < nChar; ++i)
+				characters[i].doDraw(canvas);
 			
 			//FPS.doDraw(canvas);
 		}
@@ -227,5 +219,13 @@ public class GameThread extends Thread {
 
 	public int getLastState() {
 		return mLastMode;
+	}
+	
+	public int getWidth() {
+		return mWidth;
+	}
+	
+	public int getHeight() {
+		return mHeight;
 	}
 }
