@@ -4,6 +4,7 @@ import com.fonserbc.bounce.utils.*;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.util.Log;
 
 public class Character {
 	private static final float DEF_GX = 0f;
@@ -11,6 +12,8 @@ public class Character {
 	
 	private static final float MAX_VX = 1000f;
 	private static final float MAX_VY = 1000f;
+	
+	private float BOUNCE_FORCE;
 	
 	private Vector2f gravity;
 	
@@ -29,6 +32,8 @@ public class Character {
 	
 	public void doStart (Bitmap image) {
 		this.image = image;
+		
+		BOUNCE_FORCE = game.getHeight();
 		
 		gravity = new Vector2f(DEF_GX, DEF_GY);
 		
@@ -66,5 +71,17 @@ public class Character {
 	
 	public void doDraw (Canvas canvas) {
 		canvas.drawBitmap(image, pos.x, pos.y, null);
+	}
+
+	public float getWidht() {
+		return image.getWidth();
+	}
+	
+	public float getHeight() {
+		return image.getHeight();
+	}
+
+	public void pushVel(Vector2f bounce) {
+		velocity = bounce;
 	}
 }

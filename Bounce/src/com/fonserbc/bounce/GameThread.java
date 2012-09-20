@@ -164,6 +164,14 @@ public class GameThread extends Thread {
 	private void update() {
 		float deltaTime = timer.tick();
 		
+		for (int i = 0; i < nTramp; ++i) {
+			for (int j = 0; j < nChar; ++j) {
+				if (trampolines[i].intersectsCharacter(characters[j])) {
+					characters[j].pushVel(trampolines[i].getBounce());
+				}
+			}
+		}
+		
 		for (int i = 0; i < nTramp; ++i)
 			trampolines[i].update(deltaTime);
 		
