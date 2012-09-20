@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -13,10 +14,11 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
 
-public class GameActivity extends Activity implements SurfaceHolder.Callback, Runnable {
+public class GameActivity extends Activity implements Runnable {
 	
 	/**
 	 * I'm using tag "BOUNCE" for all the Verbose logs
@@ -38,7 +40,9 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ru
 	int mMode;
 	int mDifficulty;
 	
-	GameView gameView;
+	Resources res;
+	
+	SurfaceView gameView;
 		SurfaceHolder mSurfaceHolder;
 		int mWidth;
 		int mHeight;
@@ -74,7 +78,10 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ru
         
         setContentView(R.layout.game_view);
         
-        gameView = (GameView) findViewById(R.id.game_view);
+        gameView = (SurfaceView) findViewById(R.id.game_view);
+        gameView.requestFocus();
+        
+        init();
         
         if (savedInstanceState == null) {
         	Log.v("BOUNCE", "Saved instance was null");
@@ -123,8 +130,15 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ru
     protected void onResume() {
     	super.onResume();
     	Log.v("BOUNCE", "onResume");
+    	
+    	mSurfaceHolder = gameView.getHolder();
     	if (thread != null) setState(STATE_RUNNING);
-    	else thread = new Thread(this);
+    	else {
+    		thread = new Thread(this);
+    		setState(STATE_RUNNING);
+    		gameView.requestFocus();
+    		thread.start();
+    	}
     }
     
 	protected void onStop() {
@@ -171,7 +185,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ru
 	public boolean onKeyDown (int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			if (gameView.isFocused()) {
-				if (mMode == GameThread.STATE_PAUSE) {
+				if (mMode == STATE_PAUSE) {
 					pauseMenu.cancel();
 					setState(STATE_RUNNING);
 				}
@@ -211,20 +225,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ru
 		})
         .show();		
 	}
-
-	public void surfaceChanged(SurfaceHolder holder, int format, int width,
-			int height) {
-		mWidth = width;
-		mHeight = height;
-	}
-
-	public void surfaceCreated(SurfaceHolder holder) {
-		
-	}
-
-	public void surfaceDestroyed(SurfaceHolder holder) {
-		
-	}
 	
 	public void setState(int state) {
 		mMode = state;
@@ -243,7 +243,9 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ru
 		}
 	}
 
-	public void init() {    	    		
+	public void init() {   
+		timer = new Timer();
+		
     	colors = new int[3];
     	colors[0] = Color.RED;
 		colors[1] = Color.GREEN;
@@ -270,7 +272,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ru
 	
 	public void run() {
 		while (mAlive) {
-			
 			if (!mRun) try { Thread.sleep(100); } catch (InterruptedException ie) {}
 			
 	        while (mRun) {
@@ -280,6 +281,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ru
 	                //FPS.tickStart();
 	                
 	                synchronized (mSurfaceHolder) {
+	                	
 	                    update();
 	                    doDraw(c);
 	                }
