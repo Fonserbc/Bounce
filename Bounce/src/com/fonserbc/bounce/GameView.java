@@ -38,7 +38,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		if (thread.getState()==Thread.State.TERMINATED) {
 			lastState = thread.getLastState();
 			thread = new GameThread(holder, mContext, null);
-			((MainActivity) mContext).thread = thread;
+			((GameActivity) mContext).thread = thread;
 			Log.v("BOUNCE", "Thread was TERMINATED");
 		}
 		thread.doStart(lastState);
