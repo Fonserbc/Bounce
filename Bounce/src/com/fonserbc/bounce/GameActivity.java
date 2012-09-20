@@ -18,7 +18,7 @@ import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
 
-public class GameActivity extends Activity implements Runnable {
+public class GameActivity extends Activity implements Runnable, SurfaceHolder.Callback {
 	
 	/**
 	 * I'm using tag "BOUNCE" for all the Verbose logs
@@ -131,7 +131,9 @@ public class GameActivity extends Activity implements Runnable {
     	super.onResume();
     	Log.v("BOUNCE", "onResume");
     	
+    	gameView = (SurfaceView) findViewById(R.id.game_view);
     	mSurfaceHolder = gameView.getHolder();
+    	mSurfaceHolder.addCallback(this);
     	if (thread != null) setState(STATE_RUNNING);
     	else {
     		thread = new Thread(this);
@@ -337,5 +339,21 @@ public class GameActivity extends Activity implements Runnable {
 				}
 			}
 		}
+	}
+
+	public void surfaceChanged(SurfaceHolder holder, int format, int width,
+			int height) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void surfaceCreated(SurfaceHolder holder) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void surfaceDestroyed(SurfaceHolder holder) {
+		// TODO Auto-generated method stub
+		
 	}
 }
