@@ -62,7 +62,7 @@ public class GameThread extends Thread {
 	private ArrayList<Character> characters;
 	private int nChar = 0;
 	
-	private ArrayList<Integer> deadTrampolines;
+	private ArrayList<Trampoline> deadTrampolines;
 	
 	private Bitmap characterImage;
 	
@@ -81,7 +81,7 @@ public class GameThread extends Thread {
 		
 		trampolines = new ArrayList<Trampoline>();
 		characters = new ArrayList<Character>();
-		deadTrampolines = new ArrayList<Integer>();
+		deadTrampolines = new ArrayList<Trampoline>();
 	}
 	
 	public void setState(int mode) {
@@ -189,9 +189,8 @@ public class GameThread extends Thread {
 			}
 		
 			// Removals
-			for (Integer i : deadTrampolines)  {
-				trampolines.remove((int)i);
-				Log.v("BOUNCE", "Removed trampoline "+i);
+			for (Trampoline t : deadTrampolines)  {
+				trampolines.remove(t);
 			}
 		}
 		deadTrampolines.clear();
@@ -260,7 +259,7 @@ public class GameThread extends Thread {
 	}
 
 	public void notifyDeadTrampoline(Trampoline t) {
-		deadTrampolines.add(trampolines.indexOf(t));
+		deadTrampolines.add(t);
 	}
 
 	public void actionDown(float x, float y) {
