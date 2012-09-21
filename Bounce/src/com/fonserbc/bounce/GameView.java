@@ -3,6 +3,7 @@ package com.fonserbc.bounce;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -60,5 +61,21 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	
 	public GameThread getThread() {
 		return thread;
+	}
+	
+	public boolean onTouchEvent (MotionEvent event) {
+		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+			thread.actionDown(event.getX(), event.getY());
+			return true;
+		}
+		else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+			thread.actionMove(event.getX(), event.getY());
+			return true;
+		}
+		else if (event.getAction() == MotionEvent.ACTION_UP) {
+			thread.actionUp(event.getX(), event.getY());
+			return true;
+		}
+		return super.onTouchEvent(event);
 	}
 }

@@ -15,28 +15,24 @@ public class Trampoline {
 	
 	private GameThread game;
 	
+	private boolean beingBuild = false;
 	
 	private float[] lineBounds;
 	private float[] line;
 	private Paint linePaint;
-	private float lineSpeed = 200f;
-	/**** PROVISIONAL ****/
-	private float[] lineDir;
-	/**** PROVISIONAL ****/
 	
-	public Trampoline (GameThread game) {
+	public Trampoline (GameThread game, float minX, float minY, float maxX, float maxY, boolean beingBuild) {
 		this.game = game;
-	}
-	
-	public void doStart() {
+		this.beingBuild = beingBuild;
+		
 		MIN_LENGTH = game.getWidth()/10;
 		BOUNCE_FORCE = game.getHeight();
 		
 		line = new float[4];
-		line[0] = game.getWidth()/4;
-		line[1] = 0;
-		line[2] = 3*game.getWidth()/4;
-		line[3] = game.getHeight();
+		line[0] = minX;
+		line[1] = minY;
+		line[2] = maxX;
+		line[3] = maxY;
 		
 		lineBounds = new float[2];
 		lineBounds[0] = game.getWidth();
@@ -45,31 +41,10 @@ public class Trampoline {
 		linePaint = new Paint();
 		linePaint.setColor(Color.BLACK);
 		linePaint.setStrokeWidth(3);
-		
-		/**** PROVISIONAL ****/
-		lineDir = new float[4];
-		lineDir[0] = lineDir [3] = -1;
-		lineDir[1] = lineDir [2] = 1;
-		/**** PROVISIONAL ****/
 	}
 	
 	public void update(float deltaTime) {
-		for (int i = 0; i < line.length; ++i) {
-			line[i] += lineDir[i]*lineSpeed*deltaTime;
-			
-			if (lineDir[i] < 0) {
-				if (line[i] < 0) {
-					line[i] = 0;
-					lineDir[i] = 1;
-				}
-			}
-			else {
-				if (line[i] > lineBounds[i%2]) {
-					line[i] = lineBounds[i%2];
-					lineDir[i] = -1;
-				}
-			}
-		}
+		
 	}
 	
 	public void doDraw(Canvas canvas) {
@@ -77,56 +52,59 @@ public class Trampoline {
 	}
 	
 	public boolean intersectsCharacter(Character c) {
-		float minX = line[0];
-	    float maxX = line[2];
-
-	    if(line[0] > line[2]) {
-	      minX = line[2];
-	      maxX = line[0];
-	    }
-	    // Find the intersection of the segment's and rectangle's x-projections
-
-	    if(maxX > c.pos.x+c.size.x) {
-	      maxX = c.pos.x+c.size.x;
-	    }
-	    if(minX < c.pos.x) {
-	      minX = c.pos.x;
-	    }
-	    if(minX > maxX) { // If their projections do not intersect return false
-	      return false;
-	    }
-
-	    // Find corresponding min and max Y for min and max X we found before	    
-	    float minY = line[1];
-	    float maxY = line[3];
-
-	    float dx = line[2] - line[0];
-
-	    if(Math.abs(dx) > 0.0000001) {
-	      float a = (line[3] - line[1]) / dx;
-	      float b = line[1] - a * line[0];
-	      minY = a * minX + b;
-	      maxY = a * maxX + b;
-	    }
-
-	    if(minY > maxY) {
-	      float tmp = maxY;
-	      maxY = minY;
-	      minY = tmp;
-	    }
-	    // Find the intersection of the segment's and rectangle's y-projections
-
-	    if(maxY > c.pos.y+c.size.y) {
-	      maxY = c.pos.y+c.size.y;
-	    }
-	    if(minY < c.pos.y) {
-	      minY = c.pos.y;
-	    }
-	    if(minY > maxY) { // If Y-projections do not intersect return false
-	      return false;
-	    }
-
-	    return true;
+		if (!beingBuild) {
+			float minX = line[0];
+		    float maxX = line[2];
+	
+		    if(line[0] > line[2]) {
+		      minX = line[2];
+		      maxX = line[0];
+		    }
+		    // Find the intersection of the segment's and rectangle's x-projections
+	
+		    if(maxX > c.pos.x+c.size.x) {
+		      maxX = c.pos.x+c.size.x;
+		    }
+		    if(minX < c.pos.x) {
+		      minX = c.pos.x;
+		    }
+		    if(minX > maxX) { // If their projections do not intersect return false
+		      return false;
+		    }
+	
+		    // Find corresponding min and max Y for min and max X we found before	    
+		    float minY = line[1];
+		    float maxY = line[3];
+	
+		    float dx = line[2] - line[0];
+	
+		    if(Math.abs(dx) > 0.0000001) {
+		      float a = (line[3] - line[1]) / dx;
+		      float b = line[1] - a * line[0];
+		      minY = a * minX + b;
+		      maxY = a * maxX + b;
+		    }
+	
+		    if(minY > maxY) {
+		      float tmp = maxY;
+		      maxY = minY;
+		      minY = tmp;
+		    }
+		    // Find the intersection of the segment's and rectangle's y-projections
+	
+		    if(maxY > c.pos.y+c.size.y) {
+		      maxY = c.pos.y+c.size.y;
+		    }
+		    if(minY < c.pos.y) {
+		      minY = c.pos.y;
+		    }
+		    if(minY > maxY) { // If Y-projections do not intersect return false
+		      return false;
+		    }
+	
+		    return true;
+		}
+		else return false;
 	}
 
 	public Vector2f getBounce() {
@@ -143,4 +121,19 @@ public class Trampoline {
 		
 		return aux.cartesianProduct(new Vector2f(invX,invY)).normalized().scale(bounceFactor+EXTRA_FACTOR).scale(BOUNCE_FORCE);
 	}
+
+	public void die() {
+		game.notifyDeadTrampoline(this);		
+	}
+
+	public void setMax(float x, float y) {
+		line[2] = x;
+		line[3] = y;
+	}
+
+	public void finish() {
+		beingBuild = false;
+	}
+	
+	
 }

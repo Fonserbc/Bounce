@@ -1,5 +1,7 @@
 package com.fonserbc.bounce;
 
+import java.util.ArrayList;
+
 import com.fonserbc.bounce.utils.FramesPerSecond;
 import com.fonserbc.bounce.utils.Timer;
 import com.fonserbc.bounce.utils.Vector2f;
@@ -54,13 +56,17 @@ public class GameThread extends Thread {
 	
 	private Scene scene;
 	
-	private Trampoline[] trampolines;
+	private ArrayList<Trampoline> trampolines;
 	private int nTramp = 0;
 	
-	private Character[] characters;
+	private ArrayList<Character> characters;
 	private int nChar = 0;
 	
+	private ArrayList<Integer> deadTrampolines;
+	
 	private Bitmap characterImage;
+	
+	private Trampoline bTrampoline;
 	
 	public GameThread (SurfaceHolder surfaceHolder, Context context, Handler handler) {
 		mSurfaceHolder = surfaceHolder;
@@ -73,10 +79,9 @@ public class GameThread extends Thread {
 		FPS = new FramesPerSecond(50);
 		scene = new Scene();
 		
-		trampolines = new Trampoline[3];
-		characters = new Character[3];
-		trampolines[nTramp++] = new Trampoline(this);
-		characters[nChar++] = new Character(this);
+		trampolines = new ArrayList<Trampoline>();
+		characters = new ArrayList<Character>();
+		deadTrampolines = new ArrayList<Integer>();
 	}
 	
 	public void setState(int mode) {
@@ -99,13 +104,13 @@ public class GameThread extends Thread {
         	mWidth = mSurfaceHolder.getSurfaceFrame().width();
     		mHeight = mSurfaceHolder.getSurfaceFrame().height();
     		
-    		for (int i = 0; i < nTramp; ++i)
-    			trampolines[i].doStart();
-    		
     		characterImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.character), mWidth/10, mHeight/10, false);
     		
-    		for (int i = 0; i < nChar; ++i)
-    			characters[i].doStart(characterImage);
+    		trampolines.add(new Trampoline(this, mWidth/4, mHeight/2, mWidth*3/4, mHeight/2, false));
+    		characters.add(new Character(this));
+    		
+    		for (Character c : characters)
+    			c.doStart(characterImage);
     		
     		setState(lastState);
         }
@@ -164,30 +169,47 @@ public class GameThread extends Thread {
 	private void update() {
 		float deltaTime = timer.tick();
 		
-		for (int i = 0; i < nTramp; ++i) {
-			for (int j = 0; j < nChar; ++j) {
-				if (trampolines[i].intersectsCharacter(characters[j])) {
-					characters[j].pushVel(trampolines[i].getBounce());
+		synchronized (trampolines) {
+			synchronized (characters) {
+				
+				for (Trampoline t : trampolines) {
+					for (Character c : characters) {
+						if (t.intersectsCharacter(c)) {
+							c.pushVel(t.getBounce());
+							t.die();
+						}
+					}
 				}
+				
+				for (Trampoline t : trampolines)
+					t.update(deltaTime);
+				
+				for (Character c : characters)
+					c.update(deltaTime);
+			}
+		
+			// Removals
+			for (Integer i : deadTrampolines)  {
+				trampolines.remove((int)i);
+				Log.v("BOUNCE", "Removed trampoline "+i);
 			}
 		}
-		
-		for (int i = 0; i < nTramp; ++i)
-			trampolines[i].update(deltaTime);
-		
-		for (int i = 0; i < nChar; ++i)
-			characters[i].update(deltaTime);
+		deadTrampolines.clear();
 	}
 	
 	private void doDraw (Canvas canvas) {
 		if (canvas != null) {
 			scene.doDraw(canvas);
 			
-			for (int i = 0; i < nTramp; ++i)
-				trampolines[i].doDraw(canvas);
+			synchronized (trampolines) {
+				for (Trampoline t : trampolines)
+					t.doDraw(canvas);
+			}
 			
-			for (int i = 0; i < nChar; ++i)
-				characters[i].doDraw(canvas);
+			synchronized (characters) {
+				for (Character c : characters)
+					c.doDraw(canvas);
+			}
 			
 			//FPS.doDraw(canvas);
 		}
@@ -235,5 +257,36 @@ public class GameThread extends Thread {
 	
 	public int getHeight() {
 		return mHeight;
+	}
+
+	public void notifyDeadTrampoline(Trampoline t) {
+		deadTrampolines.add(trampolines.indexOf(t));
+	}
+
+	public void actionDown(float x, float y) {
+		if (bTrampoline == null) {
+			bTrampoline = new Trampoline(this, x,y,x,y, true);
+			synchronized (trampolines) {
+				trampolines.add(bTrampoline);
+			}
+		}
+	}
+
+	public void actionMove(float x, float y) {
+		synchronized (trampolines) {
+			if (bTrampoline != null) {
+				bTrampoline.setMax(x, y);
+			}
+		}
+	}
+
+	public void actionUp(float x, float y) {
+		synchronized (trampolines) {
+			if (bTrampoline != null) {
+				bTrampoline.setMax(x, y);
+				bTrampoline.finish();
+				bTrampoline = null;
+			}
+		}
 	}
 }
