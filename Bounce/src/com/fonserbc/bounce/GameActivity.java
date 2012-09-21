@@ -79,7 +79,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
         setContentView(R.layout.game_view);
         
         gameView = (SurfaceView) findViewById(R.id.game_view);
-        gameView.requestFocus();
         
         init();
         
@@ -121,12 +120,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     	Log.v("BOUNCE", "onStart");
     }
     
-    protected void onPause() {
-    	super.onPause();
-    	Log.v("BOUNCE", "onPause");
-    	setState(STATE_PAUSE);
-    }
-    
     protected void onResume() {
     	super.onResume();
     	Log.v("BOUNCE", "onResume");
@@ -134,13 +127,24 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     	gameView = (SurfaceView) findViewById(R.id.game_view);
     	mSurfaceHolder = gameView.getHolder();
     	mSurfaceHolder.addCallback(this);
-    	if (thread != null) setState(STATE_RUNNING);
+    	gameView.setFocusable(true);
+    	gameView.requestFocus();
+    	if (thread != null) {
+    		Log.v("BOUNCE", "Thread was NOT null onResume");
+    		setState(STATE_RUNNING);
+    	}
     	else {
+    		Log.v("BOUNCE", "Thread was null onResume");
     		thread = new Thread(this);
     		setState(STATE_RUNNING);
-    		gameView.requestFocus();
     		thread.start();
     	}
+    }
+    
+    protected void onPause() {
+    	super.onPause();
+    	Log.v("BOUNCE", "onPause");
+    	setState(STATE_PAUSE);
     }
     
 	protected void onStop() {
@@ -186,17 +190,14 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	@Override
 	public boolean onKeyDown (int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			if (gameView.isFocused()) {
-				if (mMode == STATE_PAUSE) {
-					pauseMenu.cancel();
-					setState(STATE_RUNNING);
-				}
-				else {
-					setState(STATE_PAUSE);
-					popPauseMenu();
-				}
+			if (mMode == STATE_PAUSE) {
+				pauseMenu.cancel();
+				setState(STATE_RUNNING);
 			}
-			else finish();
+			else {
+				setState(STATE_PAUSE);
+				popPauseMenu();
+			}
 		}
 		return super.onKeyDown(keyCode, event);
 	}
@@ -230,12 +231,14 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	
 	public void setState(int state) {
 		mMode = state;
-		switch(mMode) {
+		switch(state) {
 		case STATE_RUNNING:
 			mRun = true;
+			Log.v("BOUNCE", "setState RUNNING");
 			break;
 		case STATE_PAUSE:
 			mRun = false;
+			Log.v("BOUNCE", "setState PAUSE");
 			break;
 		case STATE_LOSE:
 			
@@ -245,7 +248,8 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		}
 	}
 
-	public void init() {   
+	public void init() {
+		Log.v("BOUNCE", "Init");
 		timer = new Timer();
 		
     	colors = new int[3];
@@ -274,12 +278,12 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	
 	public void run() {
 		while (mAlive) {
-			if (!mRun) try { Thread.sleep(100); } catch (InterruptedException ie) {}
+			//if (!mRun) try { Thread.sleep(100); } catch (InterruptedException ie) {}
 			
 	        while (mRun) {
 	            Canvas c = null;
 	            try {
-	                c = mSurfaceHolder.lockCanvas(null);
+	                c = mSurfaceHolder.lockCanvas();
 	                //FPS.tickStart();
 	                
 	                synchronized (mSurfaceHolder) {
@@ -343,17 +347,15 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
-		// TODO Auto-generated method stub
-		
+		Log.v("BOUNCE", "surfaceChanged");		
 	}
 
 	public void surfaceCreated(SurfaceHolder holder) {
-		// TODO Auto-generated method stub
-		
+		Log.v("BOUNCE", "surfaceCreated");	
+		gameView.requestFocus();		
 	}
 
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		// TODO Auto-generated method stub
-		
+		Log.v("BOUNCE", "surfaceDestroyed");			
 	}
 }
