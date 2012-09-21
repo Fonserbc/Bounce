@@ -53,6 +53,9 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	
 	AlertDialog pauseMenu;
 	
+	boolean needPauseMenu = false;
+	boolean isSurfaceDestroyed = true;
+	
 	Timer timer;
 	
 	/** PROVISIONAL **/
@@ -77,8 +80,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         
         setContentView(R.layout.game_view);
-        
-        gameView = (SurfaceView) findViewById(R.id.game_view);
         
         init();
         
@@ -113,6 +114,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     protected void onRestart() {
     	super.onStart();
     	Log.v("BOUNCE", "onRestart");
+    	needPauseMenu = true;
     }
     
     protected void onStart() {
@@ -126,46 +128,48 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     	
     	gameView = (SurfaceView) findViewById(R.id.game_view);
     	mSurfaceHolder = gameView.getHolder();
+    	mSurfaceHolder.setSizeFromLayout();
     	mSurfaceHolder.addCallback(this);
     	gameView.setFocusable(true);
     	gameView.requestFocus();
-    	if (thread != null) {
-    		Log.v("BOUNCE", "Thread was NOT null onResume");
-    		setState(STATE_RUNNING);
+    	
+    	if (needPauseMenu && !isSurfaceDestroyed) {
+    		popPauseMenu();
     	}
-    	else {
-    		Log.v("BOUNCE", "Thread was null onResume");
-    		thread = new Thread(this);
-    		setState(STATE_RUNNING);
-    		thread.start();
-    	}
+    	stopThread();
+    	thread = new Thread(this);
+    	mAlive = true;
+    	thread.start();
     }
     
     protected void onPause() {
+    	stopThread();
+    	if (pauseMenu != null) pauseMenu.cancel();
     	super.onPause();
     	Log.v("BOUNCE", "onPause");
-    	setState(STATE_PAUSE);
     }
     
 	protected void onStop() {
     	super.onStop();
     	Log.v("BOUNCE", "onStop");
-    	stopThread();
     }
 	
 	private void stopThread() {
     	Log.v("BOUNCE", "stopThread");
-		mRun = false;
-		mAlive = false;
-		
-		boolean retry = true;
-        while (retry) {
-            try {
-                thread.join();
-                retry = false;
-            } catch (InterruptedException e) {
-            }
-        }
+    	if (thread != null) {
+			mRun = false;
+			mAlive = false;
+			
+			boolean retry = true;
+	        while (retry) {
+	            try {
+	                thread.join();
+	                retry = false;
+	            } catch (InterruptedException e) {
+	            }
+	        }
+	        thread = null;
+    	}
 	}
     
     @Override
@@ -277,18 +281,22 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	}
 	
 	public void run() {
+		boolean singleDraw = false;
+		if (needPauseMenu) {
+			singleDraw = true;
+		}
+		
 		while (mAlive) {
-			//if (!mRun) try { Thread.sleep(100); } catch (InterruptedException ie) {}
+			if (!mRun) try { Thread.sleep(100); } catch (InterruptedException ie) {}
 			
 	        while (mRun) {
 	            Canvas c = null;
 	            try {
-	                c = mSurfaceHolder.lockCanvas();
-	                //FPS.tickStart();
-	                
-	                synchronized (mSurfaceHolder) {
+	            	synchronized (mSurfaceHolder) {
+	            		c = mSurfaceHolder.lockCanvas();
+	            		//FPS.tickStart();
 	                	
-	                    update();
+	                    if (!singleDraw) update();
 	                    doDraw(c);
 	                }
 	            } finally {
@@ -303,6 +311,11 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	            	try {
 	            		Thread.sleep(sleepTime);
 	            	} catch (InterruptedException e) {}
+	            }
+	            
+	            if (singleDraw) {
+	            	singleDraw = false;
+	            	setState(STATE_PAUSE);
 	            }
 	        }
 		}
@@ -347,15 +360,24 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
-		Log.v("BOUNCE", "surfaceChanged");		
+		Log.v("BOUNCE", "surfaceChanged");
+		mWidth = width;
+		mHeight = height;
+		setState(STATE_RUNNING);
+		if (needPauseMenu) {
+			popPauseMenu();
+		}
 	}
 
 	public void surfaceCreated(SurfaceHolder holder) {
 		Log.v("BOUNCE", "surfaceCreated");	
-		gameView.requestFocus();		
+		gameView.requestFocus();
+		isSurfaceDestroyed = false;
 	}
 
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		Log.v("BOUNCE", "surfaceDestroyed");			
+		Log.v("BOUNCE", "surfaceDestroyed");
+		setState(STATE_PAUSE);
+		isSurfaceDestroyed = true;
 	}
 }
