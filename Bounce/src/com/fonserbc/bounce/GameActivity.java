@@ -1,14 +1,27 @@
 package com.fonserbc.bounce;
 
+import java.util.ArrayList;
+
+import com.fonserbc.bounce.utils.FramesPerSecond;
+import com.fonserbc.bounce.utils.Timer;
+
 import android.os.Bundle;
+import android.os.Handler;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -19,12 +32,58 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	 * 
 	 */
 
-	private static final int MENU_EXIT = 1;
+	public static final int DIFFICULTY_EASY = 0;
+    public static final int DIFFICULTY_HARD = 1;
+    public static final int DIFFICULTY_MEDIUM = 2;
 	
-	private GameView gameView;
-	public GameThread thread;
+	public static final int STATE_LOSE = 1;
+    public static final int STATE_PAUSE = 2;
+    public static final int STATE_READY = 3;
+    public static final int STATE_RUNNING = 4;
+    public static final int STATE_WIN = 5;	
+    
+    public static final int MAX_TRAMPOLINES = 3;
+	
+	SurfaceView gameView;
+		SurfaceHolder mSurfaceHolder;
+	    int mWidth;
+	    int mHeight;
+	    boolean firstStart = true;
+	    
+	public Thread thread;
+		volatile boolean mRun = false;
+		volatile boolean mAlive = true;
+	    boolean needPauseMenu = false;
+		boolean isSurfaceDestroyed = true;
 	
 	public AlertDialog pauseMenu;
+    
+	Resources res;
+	
+	/****************/
+	/** GAME STUFF **/
+	/****************/
+    int mMode;
+    int mDifficulty;
+	
+	private Timer timer;
+	
+	private FramesPerSecond FPS;
+	
+	private Scene scene;
+	
+	private ArrayList<Trampoline> trampolines;
+	private int nTramp = 0;
+	
+	private ArrayList<Character> characters;
+	private int nChar = 0;
+	
+	private ArrayList<Trampoline> deadTrampolines;
+	
+	private Bitmap characterImage;
+	
+	private Trampoline bTrampoline;
+	/****************/
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -37,41 +96,20 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
         
         setContentView(R.layout.game_view);
         
-        gameView = (GameView) findViewById(R.id.game_view);
-        thread = gameView.getThread();
+        init();
         
         if (savedInstanceState == null) {
         	Log.v("BOUNCE", "Saved instance was null");
         }
         else {
-        	thread.restoreState(savedInstanceState);
         	Log.v("BOUNCE", "No saved instance");
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        
-        menu.add(0, MENU_EXIT, 0, R.string.menu_exit);
-        
-        return true;
-    }
-    
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case MENU_EXIT:
-            	finish();
-            	return true;
-            default:
-            	return false;
         }
     }
     
     protected void onRestart() {
     	super.onStart();
     	Log.v("BOUNCE", "onRestart");
+    	needPauseMenu = true;
     }
     
     protected void onStart() {
@@ -79,16 +117,30 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     	Log.v("BOUNCE", "onStart");
     }
     
-    protected void onPause() {
-    	super.onPause();
-    	Log.v("BOUNCE", "onPause");
-    	thread.pause();
-    }
-    
     protected void onResume() {
     	super.onResume();
     	Log.v("BOUNCE", "onResume");
-    	if (thread != null) thread.unPause();
+    	gameView = (SurfaceView) findViewById(R.id.game_view);
+    	mSurfaceHolder = gameView.getHolder();
+    	mSurfaceHolder.setSizeFromLayout();
+    	mSurfaceHolder.addCallback(this);
+    	gameView.setFocusable(true);
+    	gameView.requestFocus();
+    	
+    	if (needPauseMenu && !isSurfaceDestroyed) {
+    		popPauseMenu();
+    	}
+    	stopThread();
+    	thread = new Thread(this);
+    	mAlive = true;
+    	thread.start();
+    }
+    
+    protected void onPause() {
+    	Log.v("BOUNCE", "onPause");
+    	stopThread();
+    	if (pauseMenu != null) pauseMenu.cancel();
+    	super.onPause();
     }
     
     protected void onStop() {
@@ -96,42 +148,48 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     	Log.v("BOUNCE", "onStop");
     }
     
+    private void stopThread() {
+    	Log.v("BOUNCE", "stopThread");
+    	if (thread != null) {
+			mRun = false;
+			mAlive = false;
+
+			boolean retry = true;
+	        while (retry) {
+	            try {
+	                thread.join();
+	                retry = false;
+	            } catch (InterruptedException e) {
+	            }
+	        }
+	        thread = null;
+    	}
+	}
+    
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         Log.v("BOUNCE", "on Save Instance State");
-        
-        thread.saveState(outState);       
     }
     
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
     	super.onRestoreInstanceState(savedInstanceState);
-    	
     	Log.v("BOUNCE", "on Restore Instance State");
-    	
-    	if (savedInstanceState != null) {
-    		thread.restoreState(savedInstanceState);
-    		Log.v("BOUNCE", "restoring state not null");
-    	}
-    	
     }
     
     
 	@Override
 	public boolean onKeyDown (int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			if (gameView.isFocused()) {
-				if (thread.mMode == GameThread.STATE_PAUSE) {
-					pauseMenu.cancel();
-					thread.setState(GameThread.STATE_RUNNING);
-				}
-				else {
-					thread.setState(GameThread.STATE_PAUSE);
-					popPauseMenu();
-				}
+			if (mMode == STATE_PAUSE) {
+				pauseMenu.cancel();
+				setState(STATE_RUNNING);
 			}
-			else finish();
+			else {
+				setState(STATE_PAUSE);
+				popPauseMenu();
+			}
 		}
 		return super.onKeyDown(keyCode, event);
 	}
@@ -142,7 +200,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
         .setTitle("Game Paused")
         .setPositiveButton("Resume", new DialogInterface.OnClickListener() {
     		public void onClick(DialogInterface dialog, int whichButton) {             
-    			thread.setState(GameThread.STATE_RUNNING);
+    			setState(STATE_RUNNING);
     		}
         })
         .setNegativeButton("Quit", new DialogInterface.OnClickListener() {
@@ -152,34 +210,228 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
         })
         .setNeutralButton("Back to menu", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
-				
+				onBackPressed();
 			}
 		})
         .setOnCancelListener(new DialogInterface.OnCancelListener() {
 			public void onCancel(DialogInterface dialog) {
-				thread.setState(GameThread.STATE_RUNNING);
+				setState(STATE_RUNNING);
 			}
 		})
         .show();		
 	}
+	
+	public void setState(int state) {
+		mMode = state;
+		switch(state) {
+		case STATE_RUNNING:
+			mRun = true;
+			Log.v("BOUNCE", "setState RUNNING");
+			break;
+		case STATE_PAUSE:
+			mRun = false;
+			Log.v("BOUNCE", "setState PAUSE");
+			break;
+		case STATE_LOSE:
 
-	public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
-		// TODO Auto-generated method stub
-		
+		case STATE_WIN:
+
+		default:
+		}
 	}
 
-	public void surfaceCreated(SurfaceHolder arg0) {
-		// TODO Auto-generated method stub
-		
+	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+		Log.v("BOUNCE", "surfaceChanged");
+		mWidth = width;
+		mHeight = height;
+		setState(STATE_RUNNING);
+		if (needPauseMenu) {
+			popPauseMenu();
+		}
+		if (firstStart) {
+			doStart();
+			firstStart = false;
+		}
 	}
 
-	public void surfaceDestroyed(SurfaceHolder arg0) {
-		// TODO Auto-generated method stub
+	public void surfaceCreated(SurfaceHolder holder) {
+		gameView.requestFocus();
+		isSurfaceDestroyed = false;
+	}
+
+	public void surfaceDestroyed(SurfaceHolder holder) {
+		setState(STATE_PAUSE);
+		isSurfaceDestroyed = true;
+	}
+	
+	public boolean onTouchEvent (MotionEvent event) {
+		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+			actionDown(event.getX(), event.getY());
+			return true;
+		}
+		else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+			actionMove(event.getX(), event.getY());
+			return true;
+		}
+		else if (event.getAction() == MotionEvent.ACTION_UP) {
+			actionUp(event.getX(), event.getY());
+			return true;
+		}
+		return super.onTouchEvent(event);
+	}
+	
+	public void init() {
+		Log.v("BOUNCE", "Init");
+		mDifficulty = DIFFICULTY_MEDIUM;
 		
+		res = getResources();
+		
+		timer = new Timer();
+		FPS = new FramesPerSecond(50);
+		scene = new Scene();
+		
+		trampolines = new ArrayList<Trampoline>();
+		characters = new ArrayList<Character>();
+		deadTrampolines = new ArrayList<Trampoline>();
+	}
+	
+	public void doStart() {
+		characterImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.character), mWidth/10, mHeight/10, false);
+		
+		trampolines.add(new Trampoline(this, mWidth/4, mHeight/2, mWidth*3/4, mHeight/2, false));
+		characters.add(new Character(this));
+		
+		for (Character c : characters)
+			c.doStart(characterImage);
 	}
 
 	public void run() {
-		// TODO Auto-generated method stub
+		boolean singleDraw = false;
+		if (needPauseMenu) {
+			singleDraw = true;
+		}
 		
+		while (mAlive) {
+			if (!mRun) try { Thread.sleep(100); } catch (InterruptedException ie) {}
+
+	        while (mRun) {
+	            Canvas c = null;
+	            try {
+	            	synchronized (mSurfaceHolder) {
+	            		c = mSurfaceHolder.lockCanvas();
+	            		//FPS.tickStart();
+
+	                    if (!singleDraw) update();
+	                    doDraw(c);
+	                }
+	            } finally {
+	                if (c != null) {
+	                    mSurfaceHolder.unlockCanvasAndPost(c);
+	                }
+	                //FPS.tickEnd();
+	            }
+
+	            long sleepTime = -1; //FPS.getSleepTime();
+	            if (sleepTime > 0) {
+	            	try {
+	            		Thread.sleep(sleepTime);
+	            	} catch (InterruptedException e) {}
+	            }
+
+	            if (singleDraw) {
+	            	singleDraw = false;
+	            	setState(STATE_PAUSE);
+	            }
+	        }
+		}
+	}
+	
+	private void update() {
+		float deltaTime = timer.tick();
+		
+		synchronized (trampolines) {
+			synchronized (characters) {
+				
+				for (Trampoline t : trampolines) {
+					for (Character c : characters) {
+						if (t.intersectsCharacter(c)) {
+							c.pushVel(t.getBounce());
+							t.die();
+						}
+					}
+				}
+				
+				for (Trampoline t : trampolines)
+					t.update(deltaTime);
+				
+				for (Character c : characters)
+					c.update(deltaTime);
+			}
+		
+			// Removals
+			for (Trampoline t : deadTrampolines)  {
+				trampolines.remove(t);
+			}
+		}
+		deadTrampolines.clear();
+	}
+	
+	private void doDraw (Canvas canvas) {
+		if (canvas != null) {
+			scene.doDraw(canvas);
+			
+			synchronized (trampolines) {
+				for (Trampoline t : trampolines)
+					t.doDraw(canvas);
+			}
+			
+			synchronized (characters) {
+				for (Character c : characters)
+					c.doDraw(canvas);
+			}
+			
+			//FPS.doDraw(canvas);
+		}
+	}
+	
+	public void notifyDeadTrampoline(Trampoline t) {
+		synchronized (deadTrampolines) {
+			deadTrampolines.add(t);
+		}
+	}
+
+	public void actionDown(float x, float y) {
+		if (bTrampoline == null) {
+			bTrampoline = new Trampoline(this, x,y,x,y, true);
+			synchronized (trampolines) {
+				trampolines.add(bTrampoline);
+			}
+		}
+	}
+
+	public void actionMove(float x, float y) {
+		synchronized (trampolines) {
+			if (bTrampoline != null) {
+				bTrampoline.setMax(x, y);
+			}
+		}
+	}
+
+	public void actionUp(float x, float y) {
+		synchronized (trampolines) {
+			if (bTrampoline != null) {
+				bTrampoline.setMax(x, y);
+				bTrampoline.finish();
+				bTrampoline = null;
+			}
+		}
+	}
+	
+	public int getWidth() {
+		return mWidth;
+	}
+	
+	public int getHeight() {
+		return mHeight;
 	}
 }

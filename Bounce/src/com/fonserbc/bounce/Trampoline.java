@@ -13,7 +13,7 @@ public class Trampoline {
 	private float MIN_LENGTH;
 	private float BOUNCE_FORCE;
 	
-	private GameThread game;
+	private GameActivity game;
 	
 	private boolean beingBuild = false;
 	
@@ -21,7 +21,7 @@ public class Trampoline {
 	private float[] line;
 	private Paint linePaint;
 	
-	public Trampoline (GameThread game, float minX, float minY, float maxX, float maxY, boolean beingBuild) {
+	public Trampoline (GameActivity game, float minX, float minY, float maxX, float maxY, boolean beingBuild) {
 		this.game = game;
 		this.beingBuild = beingBuild;
 		

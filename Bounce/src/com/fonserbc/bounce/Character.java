@@ -22,11 +22,11 @@ public class Character {
 	
 	Bitmap image;
 	
-	GameThread game;
+	GameActivity game;
 	
 	Vector2f pos, size;
 	
-	public Character (GameThread game) {
+	public Character (GameActivity game) {
 		this.game = game;
 	}
 	
