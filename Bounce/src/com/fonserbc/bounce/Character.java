@@ -8,17 +8,15 @@ import android.util.Log;
 
 public class Character {
 	private static final float DEF_GX = 0f;
-	private static final float DEF_GY = 300f;
+	private static final float DEF_GY = 250f;
 	
 	private static final float MAX_VX = 1000f;
-	private static final float MAX_VY = 1000f;
-	
-	private float BOUNCE_FORCE;
+	private static final float MAX_VY = 500f;
 	
 	private Vector2f gravity;
 	
 	private Vector2f velocity;
-	private Vector2f maxVel;
+	Vector2f maxVel;
 	
 	Bitmap image;
 	
@@ -33,7 +31,7 @@ public class Character {
 	public void doStart (Bitmap image) {
 		this.image = image;
 		
-		BOUNCE_FORCE = game.getHeight();
+		maxVel = new Vector2f(MAX_VX, MAX_VY);
 		
 		gravity = new Vector2f(DEF_GX, DEF_GY);
 		
@@ -83,5 +81,13 @@ public class Character {
 
 	public void pushVel(Vector2f bounce) {
 		velocity = bounce;
+		/*
+		if (velocity.y > 0) velocity.y = 0;
+		
+		velocity = velocity.plus(bounce);
+		float maxMag = maxVel.magnitude();
+		if (velocity.magnitude() > maxMag)
+			velocity = velocity.normalized().scale(maxMag);
+			*/
 	}
 }

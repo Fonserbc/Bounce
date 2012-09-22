@@ -26,7 +26,7 @@ public class Trampoline {
 		this.beingBuild = beingBuild;
 		
 		MIN_LENGTH = game.getWidth()/10;
-		BOUNCE_FORCE = game.getHeight();
+		BOUNCE_FORCE = game.getHeight()*0.8f;
 		
 		line = new float[4];
 		line[0] = minX;
@@ -132,7 +132,29 @@ public class Trampoline {
 	}
 
 	public void finish() {
-		beingBuild = false;
+		Vector2f aux = new Vector2f(line[2]-line[0], line[3]-line[1]);
+		float length = aux.magnitude();
+		if (length <= 0) {
+			die();
+			Log.v("BOUNCE", "Trampoline was 0, aborting");
+		}
+		else if (game.getTrampolinesCont() > game.MAX_TRAMPOLINES) {
+			die();
+			Log.v("BOUNCE", "Too much trampolines, aborting");
+		}
+		else {
+			if (length < MIN_LENGTH*1.5 && length > 0) {
+				Vector2f aux2 = aux.normalized().scale(MIN_LENGTH*1.5f);
+				Log.v("BOUNCE", "Trampoline too small: was "+length+" now is "+aux2.magnitude());
+				float dx = (aux2.x/2 - aux.x/2);
+				float dy = (aux2.y/2 - aux.y/2);
+				line[0] -= dx;
+				line[1] -= dy;
+				line[2] += dx;
+				line[3] += dy;
+			}
+			beingBuild = false;
+		}
 	}
 	
 	

@@ -298,7 +298,10 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	public void doStart() {
 		characterImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.character), mWidth/10, mHeight/10, false);
 		
-		trampolines.add(new Trampoline(this, mWidth/4, mHeight/2, mWidth*3/4, mHeight/2, false));
+		float defTrampXm = mWidth/16;
+		float defTrampXM = mWidth - mWidth/16;
+		float defTrampY = mHeight-mHeight/16;
+		trampolines.add(new Trampoline(this, defTrampXm, defTrampY, defTrampXM, defTrampY, false));
 		characters.add(new Character(this));
 		
 		for (Character c : characters)
@@ -433,5 +436,9 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	
 	public int getHeight() {
 		return mHeight;
+	}
+
+	public int getTrampolinesCont() {
+		return trampolines.size();
 	}
 }
