@@ -3,5 +3,9 @@
     <string name="app_name">Bounce</string>
     <string name="title_activity_main">Bounce</string>
     <string name="menu_exit">Exit</string>
+    <string name="game_paused">Game Paused</string>
+    <string name="quit">Quit</string>
+    <string name="back_menu">Back to menu</string>
+    <string name="resume">Resume</string>
 
 </resources>

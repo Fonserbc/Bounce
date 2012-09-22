@@ -74,7 +74,7 @@ public class Character {
 		
 		Paint paint = new Paint(Color.WHITE);
 		if (pos.y < -image.getHeight()) {
-			canvas.drawRect(pos.x, 0, pos.x+image.getWidth(), image.getWidth(), paint);
+			canvas.drawRect(pos.x, 0, pos.x+image.getWidth(), 10, paint);
 		}
 	}
 

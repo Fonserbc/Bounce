@@ -197,18 +197,18 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	private void popPauseMenu() {
 		final GameActivity that = this;
 		pauseMenu = new AlertDialog.Builder(this)
-        .setTitle("Game Paused")
-        .setPositiveButton("Resume", new DialogInterface.OnClickListener() {
+		.setTitle("Game Paused")
+        .setPositiveButton(R.string.resume, new DialogInterface.OnClickListener() {
     		public void onClick(DialogInterface dialog, int whichButton) {             
     			setState(STATE_RUNNING);
     		}
         })
-        .setNegativeButton("Quit", new DialogInterface.OnClickListener() {
+        .setNegativeButton(R.string.quit, new DialogInterface.OnClickListener() {
     		public void onClick(DialogInterface dialog, int whichButton) {             
     			that.finish();
     		}
         })
-        .setNeutralButton("Back to menu", new DialogInterface.OnClickListener() {
+        .setNeutralButton(R.string.back_menu, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				onBackPressed();
 			}
