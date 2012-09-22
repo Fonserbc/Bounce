@@ -8,10 +8,11 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SurfaceHolder;
 import android.view.Window;
 import android.view.WindowManager;
 
-public class MainActivity extends Activity {
+public class GameActivity extends Activity implements Runnable, SurfaceHolder.Callback {
 	
 	/**
 	 * I'm using tag "BOUNCE" for all the Verbose logs
@@ -136,7 +137,7 @@ public class MainActivity extends Activity {
 	}
 	
 	private void popPauseMenu() {
-		final MainActivity that = this;
+		final GameActivity that = this;
 		pauseMenu = new AlertDialog.Builder(this)
         .setTitle("Game Paused")
         .setPositiveButton("Resume", new DialogInterface.OnClickListener() {
@@ -160,5 +161,25 @@ public class MainActivity extends Activity {
 			}
 		})
         .show();		
+	}
+
+	public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void surfaceCreated(SurfaceHolder arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void surfaceDestroyed(SurfaceHolder arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void run() {
+		// TODO Auto-generated method stub
+		
 	}
 }
