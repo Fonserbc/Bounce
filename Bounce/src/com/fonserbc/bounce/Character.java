@@ -4,6 +4,8 @@ import com.fonserbc.bounce.utils.*;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.util.Log;
 
 public class Character {
@@ -15,7 +17,7 @@ public class Character {
 	
 	private Vector2f gravity;
 	
-	private Vector2f velocity;
+	Vector2f velocity;
 	Vector2f maxVel;
 	
 	Bitmap image;
@@ -59,8 +61,8 @@ public class Character {
 			if (velocity.x > 0) velocity.x *= -1;
 		}
 		
-		if (pos.y < 0) {
-			if (velocity.y < 0) velocity.y *= -1;
+		if (pos.y < -game.getHeight()) {
+			if (velocity.y < 0) velocity.y = 0;
 		}
 		else if (pos.y > game.getHeight()) {
 			if (velocity.y > 0) pos.y = 0;
@@ -69,6 +71,11 @@ public class Character {
 	
 	public void doDraw (Canvas canvas) {
 		canvas.drawBitmap(image, pos.x, pos.y, null);
+		
+		Paint paint = new Paint(Color.WHITE);
+		if (pos.y < -image.getHeight()) {
+			canvas.drawRect(pos.x, 0, pos.x+image.getWidth(), image.getWidth(), paint);
+		}
 	}
 
 	public float getWidht() {

@@ -52,7 +52,7 @@ public class Trampoline {
 	}
 	
 	public boolean intersectsCharacter(Character c) {
-		if (!beingBuild) {
+		if (!beingBuild && c.velocity.y > 0) {
 			float minX = line[0];
 		    float maxX = line[2];
 	
