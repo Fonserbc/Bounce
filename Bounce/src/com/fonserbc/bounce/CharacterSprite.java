@@ -55,7 +55,9 @@ public class CharacterSprite {
 	}
 
 	public void doDraw(Canvas canvas, Vector2f pos) {
-		canvas.drawBitmap(sprite, source, new Rect((int)pos.x, (int)pos.y, (int)pos.x+source.width(), (int)pos.y+source.height()), null);
+		int x = (int)pos.x;
+		int y = (int)pos.y;
+		canvas.drawBitmap(sprite, source, new Rect(x, y, x+source.width(), y+source.height()), null);
 	}
 	
 	public void update(float deltaTime, Vector2f v) {
