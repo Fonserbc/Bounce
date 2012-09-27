@@ -15,6 +15,9 @@ public class Character {
 	private static final float MAX_VX = 1000f;
 	private static final float MAX_VY = 500f;
 	
+	private static final float LATERAL_BOUNCE_X = 150f;
+	private static final float LATERAL_BOUNCE_Y = 80f;
+	
 	private Vector2f gravity;
 	
 	Vector2f velocity;
@@ -55,10 +58,20 @@ public class Character {
 		else velocity.y = MAX_VY;
 		
 		if (pos.x < 0) {
-			if (velocity.x < 0) velocity.x *= -1;
+			if (velocity.x < 0) 
+				if (velocity.y > 0)	velocity.x *= -1;
+				else {
+					velocity.x = LATERAL_BOUNCE_X;
+					velocity.y = -Math.max(Math.abs(velocity.y)*0.6f, LATERAL_BOUNCE_Y);
+				}
 		}
 		else if (pos.x+image.getWidth() > game.getWidth()) {
-			if (velocity.x > 0) velocity.x *= -1;
+			if (velocity.x > 0) 
+				if (velocity.y > 0) velocity.x *= -1;
+				else {
+					velocity.x = -LATERAL_BOUNCE_X;
+					velocity.y = -Math.max(Math.abs(velocity.y)*0.6f, LATERAL_BOUNCE_Y);
+				}
 		}
 		
 		if (pos.y < -game.getHeight()) {
