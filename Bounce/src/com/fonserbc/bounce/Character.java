@@ -5,6 +5,7 @@ import com.fonserbc.bounce.utils.*;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.Log;
 
@@ -18,12 +19,15 @@ public class Character {
 	private static final float LATERAL_BOUNCE_X = 150f;
 	private static final float LATERAL_BOUNCE_Y = 80f;
 	
+	private static final float WALL_LOSS = 0.8f;
+	
 	private Vector2f gravity;
 	
 	Vector2f velocity;
 	Vector2f maxVel;
 	
-	Bitmap image;
+	CharacterSprite sprite;
+		Matrix flipRightMatrix;
 	
 	GameActivity game;
 	
@@ -33,8 +37,8 @@ public class Character {
 		this.game = game;
 	}
 	
-	public void doStart (Bitmap image) {
-		this.image = image;
+	public void doStart (Bitmap spriteSheet) {
+		sprite = new CharacterSprite(this, spriteSheet, 5, 2);
 		
 		maxVel = new Vector2f(MAX_VX, MAX_VY);
 		
@@ -42,8 +46,8 @@ public class Character {
 		
 		velocity = new Vector2f(30, 0);
 		
-		pos = new Vector2f(game.getWidth()/2 - image.getWidth()/2, 0);
-		size = new Vector2f(image.getWidth(), image.getHeight());
+		pos = new Vector2f(game.getWidth()/2 - sprite.getWidth()/2, 0);
+		size = new Vector2f(sprite.getWidth(), sprite.getHeight());
 	}
 	
 	public void update (float deltaTime) {
@@ -59,18 +63,20 @@ public class Character {
 		
 		if (pos.x < 0) {
 			if (velocity.x < 0) 
-				if (velocity.y > 0)	velocity.x *= -1;
+				if (velocity.y > 0)	velocity.x *= -WALL_LOSS;
 				else {
 					velocity.x = LATERAL_BOUNCE_X;
 					velocity.y = -Math.max(Math.abs(velocity.y)*0.6f, LATERAL_BOUNCE_Y);
+					sprite.setGrab();
 				}
 		}
-		else if (pos.x+image.getWidth() > game.getWidth()) {
+		else if (pos.x+sprite.getWidth() > game.getWidth()) {
 			if (velocity.x > 0) 
-				if (velocity.y > 0) velocity.x *= -1;
+				if (velocity.y > 0) velocity.x *= -WALL_LOSS;
 				else {
 					velocity.x = -LATERAL_BOUNCE_X;
 					velocity.y = -Math.max(Math.abs(velocity.y)*0.6f, LATERAL_BOUNCE_Y);
+					sprite.setGrab();
 				}
 		}
 		
@@ -80,34 +86,29 @@ public class Character {
 		else if (pos.y > game.getHeight()) {
 			if (velocity.y > 0) pos.y = 0;
 		}
+		
+		sprite.update(deltaTime, velocity);
 	}
 	
 	public void doDraw (Canvas canvas) {
-		canvas.drawBitmap(image, pos.x, pos.y, null);
+		sprite.doDraw(canvas, pos);
 		
 		Paint paint = new Paint(Color.WHITE);
-		if (pos.y < -image.getHeight()) {
-			canvas.drawRect(pos.x, 0, pos.x+image.getWidth(), 10, paint);
+		if (pos.y < -sprite.getHeight()) {
+			canvas.drawRect(pos.x, 0, pos.x+sprite.getWidth(), 10, paint);
 		}
 	}
 
 	public float getWidht() {
-		return image.getWidth();
+		return sprite.getWidth();
 	}
 	
 	public float getHeight() {
-		return image.getHeight();
+		return sprite.getHeight();
 	}
 
 	public void pushVel(Vector2f bounce) {
 		velocity = bounce;
-		/*
-		if (velocity.y > 0) velocity.y = 0;
-		
-		velocity = velocity.plus(bounce);
-		float maxMag = maxVel.magnitude();
-		if (velocity.magnitude() > maxMag)
-			velocity = velocity.normalized().scale(maxMag);
-			*/
+		sprite.setJump();
 	}
 }
