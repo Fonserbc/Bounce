@@ -41,8 +41,6 @@ public class CharacterSprite {
 		iWidth = sprite.getWidth()/tilingX;
 		iHeight = sprite.getHeight()/tilingY;
 		
-		Log.v("BOUNCE", "Inside sizes: "+iWidth+", "+iHeight);
-		
 		X = 0; Y = 0;
 		
 		source = new Rect(X*iWidth, Y*iHeight, X*iWidth + iWidth, Y*iHeight + iHeight);

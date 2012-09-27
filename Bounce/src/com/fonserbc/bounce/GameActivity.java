@@ -137,6 +137,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     }
     
     protected void onPause() {
+    	if (pauseMenu == null) popPauseMenu();
     	Log.v("BOUNCE", "onPause");
     	stopThread();
     	if (pauseMenu != null) pauseMenu.cancel();
@@ -345,6 +346,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 
 	            if (singleDraw) {
 	            	singleDraw = false;
+	            	Log.v("BOUNCE", "Single Draw");
 	            	setState(STATE_PAUSE);
 	            }
 	        }
