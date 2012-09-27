@@ -304,6 +304,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		float defTrampY = mHeight-mHeight/16;
 		trampolines.add(new Trampoline(this, defTrampXm, defTrampY, defTrampXM, defTrampY, false));
 		characters.add(new Character(this));
+		characters.add(new Character(this));
 		
 		for (Character c : characters)
 			c.doStart(characterImage);
@@ -361,6 +362,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 						if (t.intersectsCharacter(c)) {
 							c.pushVel(t.getBounce());
 							t.die();
+							break;
 						}
 					}
 				}
