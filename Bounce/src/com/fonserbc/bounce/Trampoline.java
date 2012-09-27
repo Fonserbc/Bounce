@@ -4,12 +4,17 @@ import com.fonserbc.bounce.utils.Vector2f;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
+import android.graphics.Shader;
 import android.util.Log;
 
 public class Trampoline {
 
 	private static final float EXTRA_FACTOR = 0.3f;
+	private static final int NUM_COLORS = 6;
+	private static final float COLOR_SPEED = 1f;
+	
 	private float MIN_LENGTH;
 	private float BOUNCE_FORCE;
 	
@@ -20,6 +25,9 @@ public class Trampoline {
 	private float[] lineBounds;
 	private float[] line;
 	private Paint linePaint;
+	private LinearGradient gradient;
+		private int[] gradientColors;
+		private float[] gradientPos;
 	
 	public Trampoline (GameActivity game, float minX, float minY, float maxX, float maxY, boolean beingBuild) {
 		this.game = game;
@@ -39,15 +47,36 @@ public class Trampoline {
 		lineBounds[1] = game.getHeight();
 		
 		linePaint = new Paint();
-		linePaint.setColor(Color.BLACK);
-		linePaint.setStrokeWidth(3);
+		linePaint.setStrokeWidth(5);
+		
+		gradientColors = new int[NUM_COLORS];
+			gradientColors[0] = Color.YELLOW;
+			gradientColors[1] = Color.RED;
+			gradientColors[2] = Color.MAGENTA;
+			gradientColors[3] = Color.BLUE;
+			gradientColors[4] = Color.CYAN;
+			gradientColors[5] = Color.GREEN;
+		
+		gradientPos = new float[NUM_COLORS];
+			gradientPos[0] = 0f;
+		for (int i = 1; i < NUM_COLORS; ++i)
+			gradientPos[i] = i/(float)(NUM_COLORS - 1);
+		
+		for (int i = 0; i < NUM_COLORS; ++i)
+			Log.v("BOUNCE", ""+gradientPos[i]);
 	}
 	
 	public void update(float deltaTime) {
-		
+		/*for (int i = 0; i < NUM_COLORS; ++i) {
+			gradientPos[i] += COLOR_SPEED*deltaTime;
+			if (gradientPos[i] > 1) gradientPos[i] -= 1; 
+		}*/
 	}
 	
 	public void doDraw(Canvas canvas) {
+		gradient = new LinearGradient(line[0], line[1], line[2], line[3], gradientColors, gradientPos, Shader.TileMode.REPEAT);
+		
+		linePaint.setShader(gradient);
 		canvas.drawLine(line[0], line[1], line[2], line[3], linePaint);
 	}
 	
@@ -95,8 +124,8 @@ public class Trampoline {
 		    if(maxY > c.pos.y+c.size.y) {
 		      maxY = c.pos.y+c.size.y;
 		    }
-		    if(minY < c.pos.y) {
-		      minY = c.pos.y;
+		    if(minY < c.pos.y+c.size.y/2) {
+		      minY = c.pos.y+c.size.y/2;
 		    }
 		    if(minY > maxY) { // If Y-projections do not intersect return false
 		      return false;
