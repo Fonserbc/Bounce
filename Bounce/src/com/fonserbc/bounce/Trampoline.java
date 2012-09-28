@@ -13,7 +13,7 @@ public class Trampoline {
 
 	private static final float EXTRA_FACTOR = 0.3f;
 	private static final int NUM_COLORS = 6;
-	private static final float COLOR_SPEED = 1f;
+	private static final float COLOR_SPEED = 0.05f;
 	
 	private float MIN_LENGTH;
 	private float BOUNCE_FORCE;
@@ -27,7 +27,9 @@ public class Trampoline {
 	private Paint linePaint;
 	private LinearGradient gradient;
 		private int[] gradientColors;
-		private float[] gradientPos;
+		private int[] actualGradient;
+			private int[] gradientIt;
+		private float time;
 	
 	public Trampoline (GameActivity game, float minX, float minY, float maxX, float maxY, boolean beingBuild) {
 		this.game = game;
@@ -56,25 +58,30 @@ public class Trampoline {
 			gradientColors[3] = Color.BLUE;
 			gradientColors[4] = Color.CYAN;
 			gradientColors[5] = Color.GREEN;
+		actualGradient = new int[NUM_COLORS];
+		gradientIt = new int[NUM_COLORS];
 		
-		gradientPos = new float[NUM_COLORS];
-			gradientPos[0] = 0f;
-		for (int i = 1; i < NUM_COLORS; ++i)
-			gradientPos[i] = i/(float)(NUM_COLORS - 1);
+		for (int i = 0; i < NUM_COLORS; ++i) {
+			gradientIt[i] = (i+1)%NUM_COLORS;
+			actualGradient[i] = gradientColors[i];
+		}
 		
-		for (int i = 0; i < NUM_COLORS; ++i)
-			Log.v("BOUNCE", ""+gradientPos[i]);
 	}
 	
 	public void update(float deltaTime) {
-		/*for (int i = 0; i < NUM_COLORS; ++i) {
-			gradientPos[i] += COLOR_SPEED*deltaTime;
-			if (gradientPos[i] > 1) gradientPos[i] -= 1; 
-		}*/
+		time += deltaTime;
+		
+		if (time > COLOR_SPEED) {
+			time = 0;
+			for (int i = 0; i < NUM_COLORS; ++i) {
+				actualGradient[i] = gradientColors[gradientIt[i]];
+				gradientIt[i] = (gradientIt[i]+1)%NUM_COLORS;
+			}
+		}
 	}
 	
 	public void doDraw(Canvas canvas) {
-		gradient = new LinearGradient(line[0], line[1], line[2], line[3], gradientColors, gradientPos, Shader.TileMode.REPEAT);
+		gradient = new LinearGradient(line[0], line[1], line[2], line[3], actualGradient, null, Shader.TileMode.REPEAT);
 		
 		linePaint.setShader(gradient);
 		canvas.drawLine(line[0], line[1], line[2], line[3], linePaint);
