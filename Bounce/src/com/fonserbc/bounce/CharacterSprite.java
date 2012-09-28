@@ -9,6 +9,8 @@ import android.graphics.RectF;
 import android.util.Log;
 
 public class CharacterSprite {
+	
+	private static final int AUG = 4;
 
 	Character character;
 	
@@ -38,12 +40,12 @@ public class CharacterSprite {
 		this.tilingX = tilingX;
 		this.tilingY = tilingY;
 		
-		iWidth = sprite.getWidth()/tilingX;
-		iHeight = sprite.getHeight()/tilingY;
+		iWidth = (sprite.getWidth() - tilingX*AUG)/tilingX;
+		iHeight = (sprite.getHeight() - tilingY*AUG)/tilingY;
 		
 		X = 0; Y = 0;
 		
-		source = new Rect(X*iWidth, Y*iHeight, X*iWidth + iWidth, Y*iHeight + iHeight);
+		source = new Rect(X*iWidth + X*AUG, Y*iHeight + Y*AUG, X*iWidth + X*AUG + iWidth, Y*iHeight + Y*AUG + iHeight);
 	}
 
 	public float getWidth() { 
@@ -108,7 +110,7 @@ public class CharacterSprite {
 			}
 		}
 		
-		source = new Rect(X*iWidth, Y*iHeight, X*iWidth + iWidth, Y*iHeight + iHeight);
+		source = new Rect(X*iWidth + X*AUG, Y*iHeight + Y*AUG, X*iWidth + X*AUG + iWidth, Y*iHeight + Y*AUG + iHeight);
 	}
 	
 	public void setJump() {
