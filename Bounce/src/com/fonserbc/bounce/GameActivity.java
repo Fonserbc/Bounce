@@ -33,8 +33,8 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	 */
 
 	public static final int DIFFICULTY_EASY = 0;
-    public static final int DIFFICULTY_HARD = 1;
-    public static final int DIFFICULTY_MEDIUM = 2;
+    public static final int DIFFICULTY_HARD = 2;
+    public static final int DIFFICULTY_MEDIUM = 1;
 	
 	public static final int STATE_LOSE = 1;
     public static final int STATE_PAUSE = 2;
@@ -43,12 +43,13 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     public static final int STATE_WIN = 5;	
     
     public static final int MAX_TRAMPOLINES = 3;
-	
+    
 	SurfaceView gameView;
 		SurfaceHolder mSurfaceHolder;
 	    int mWidth;
 	    int mHeight;
 	    boolean firstStart = true;
+	    boolean canDraw = false;
 	    
 	public Thread thread;
 		volatile boolean mRun = false;
@@ -64,7 +65,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	/** GAME STUFF **/
 	/****************/
     int mMode;
-    int mDifficulty;
+    int mDifficulty = DIFFICULTY_MEDIUM;
 	
 	private Timer timer;
 	
@@ -253,6 +254,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			doStart();
 			firstStart = false;
 		}
+		canDraw = true;
 	}
 
 	public void surfaceCreated(SurfaceHolder holder) {
@@ -263,6 +265,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		setState(STATE_PAUSE);
 		isSurfaceDestroyed = true;
+		canDraw = false;
 	}
 	
 	public boolean onTouchEvent (MotionEvent event) {
@@ -304,11 +307,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		float defTrampXM = mWidth - mWidth/16;
 		float defTrampY = mHeight-mHeight/16;
 		trampolines.add(new Trampoline(this, defTrampXm, defTrampY, defTrampXM, defTrampY, false));
-		characters.add(new Character(this));
-		characters.add(new Character(this));
-		
-		for (Character c : characters)
-			c.doStart(characterImage);
 	}
 
 	public void run() {
@@ -320,7 +318,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		while (mAlive) {
 			if (!mRun) try { Thread.sleep(100); } catch (InterruptedException ie) {}
 
-	        while (mRun) {
+	        while (mRun && canDraw) {
 	            Canvas c = null;
 	            try {
 	            	synchronized (mSurfaceHolder) {
@@ -358,7 +356,11 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		
 		synchronized (trampolines) {
 			synchronized (characters) {
+				/*** SPAWN ***/
+				doSpawn(deltaTime);
+				/****/
 				
+				/*** COLLISIONS ***/
 				for (Trampoline t : trampolines) {
 					for (Character c : characters) {
 						if (t.intersectsCharacter(c)) {
@@ -368,6 +370,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 						}
 					}
 				}
+				/****/
 				
 				for (Trampoline t : trampolines)
 					t.update(deltaTime);
@@ -382,6 +385,13 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			}
 		}
 		deadTrampolines.clear();
+	}
+	
+	private void doSpawn (float deltaTime) {
+		/** CHARACTERS SPAWN **/
+		if (characters.size() < 2+mDifficulty) {
+			characters.add(new Character(this, characterImage));
+		}
 	}
 	
 	private void doDraw (Canvas canvas) {

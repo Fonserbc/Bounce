@@ -37,6 +37,11 @@ public class Character {
 		this.game = game;
 	}
 	
+	public Character (GameActivity game, Bitmap spriteSheet) {
+		this.game = game;
+		doStart(spriteSheet);
+	}
+	
 	public void doStart (Bitmap spriteSheet) {
 		sprite = new CharacterSprite(this, spriteSheet, 5, 2);
 		
@@ -44,9 +49,9 @@ public class Character {
 		
 		gravity = new Vector2f(DEF_GX, DEF_GY);
 		
-		velocity = new Vector2f(30, 0);
+		velocity = new Vector2f(0, -MAX_VY);
 		
-		pos = new Vector2f(game.getWidth()/2 - sprite.getWidth()/2, 0);
+		pos = new Vector2f(game.getWidth()/2 - sprite.getWidth()/2, game.getHeight());
 		size = new Vector2f(sprite.getWidth(), sprite.getHeight());
 	}
 	
@@ -56,10 +61,10 @@ public class Character {
 		pos.x += velocity.x*deltaTime + 0.5*gravity.x*squaredDeltaTime;
 		pos.y += velocity.y*deltaTime + 0.5*gravity.y*squaredDeltaTime;
 		
-		if (velocity.x < MAX_VX) velocity.x += gravity.x*deltaTime;
-		else velocity.x = MAX_VX;
-		if (velocity.y < MAX_VY) velocity.y += gravity.y*deltaTime;
-		else velocity.y = MAX_VY;
+		if (velocity.x < maxVel.x) velocity.x += gravity.x*deltaTime;
+		else velocity.x = maxVel.x;
+		if (velocity.y < maxVel.y) velocity.y += gravity.y*deltaTime;
+		else velocity.y = maxVel.y;
 		
 		if (pos.x < 0) {
 			if (velocity.x < 0) 
