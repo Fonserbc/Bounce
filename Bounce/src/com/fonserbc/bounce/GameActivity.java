@@ -31,6 +31,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	 * I'm using tag "BOUNCE" for all the Verbose logs
 	 * 
 	 */
+	public static final int DEF_LIVES = 3;
 
 	public static final int DIFFICULTY_EASY = 0;
     public static final int DIFFICULTY_HARD = 2;
@@ -43,6 +44,10 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     public static final int STATE_WIN = 5;	
     
     public static final int MAX_TRAMPOLINES = 3;
+    public static final int MAX_COLLECTIBLES = 5;
+    
+    public static final float TIME_BETWEEN_CHARACTER_SPAWNS = 5;
+    public static final float TIME_BETWEEN_COLLECTIBLE_SPAWNS = 2;
     
 	SurfaceView gameView;
 		SurfaceHolder mSurfaceHolder;
@@ -66,6 +71,8 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	/****************/
     int mMode;
     int mDifficulty = DIFFICULTY_MEDIUM;
+    
+    int lives;
 	
 	private Timer timer;
 	
@@ -73,13 +80,15 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	
 	private Scene scene;
 	
-	private ArrayList<Trampoline> trampolines;
-	private int nTramp = 0;
+	private ArrayList<Entity> entities;
 	
+	private ArrayList<Trampoline> trampolines;	
 	private ArrayList<Character> characters;
-	private int nChar = 0;
+		float characterSpawnTime = TIME_BETWEEN_CHARACTER_SPAWNS*3/4;
+	private ArrayList<Collectible> collectibles;
+		float collectibleSpawnTime = 0;
 	
-	private ArrayList<Trampoline> deadTrampolines;
+	private ArrayList<Entity> deadEntities;
 	
 	private Bitmap characterImage;
 	
@@ -288,15 +297,19 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		Log.v("BOUNCE", "Init");
 		mDifficulty = DIFFICULTY_MEDIUM;
 		
+		lives = DEF_LIVES;
+		
 		res = getResources();
 		
 		timer = new Timer();
 		FPS = new FramesPerSecond(50);
 		scene = new Scene();
 		
+		entities = new ArrayList<Entity>();
 		trampolines = new ArrayList<Trampoline>();
 		characters = new ArrayList<Character>();
-		deadTrampolines = new ArrayList<Trampoline>();
+		collectibles = new ArrayList<Collectible>();
+		deadEntities = new ArrayList<Entity>();
 	}
 	
 	public void doStart() {
@@ -306,7 +319,9 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		float defTrampXm = mWidth/16;
 		float defTrampXM = mWidth - mWidth/16;
 		float defTrampY = mHeight-mHeight/16;
-		trampolines.add(new Trampoline(this, defTrampXm, defTrampY, defTrampXM, defTrampY, false));
+		Trampoline aux = new Trampoline(this, defTrampXm, defTrampY, defTrampXM, defTrampY, false);
+		entities.add(aux);
+		trampolines.add(aux);
 	}
 
 	public void run() {
@@ -356,41 +371,77 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		
 		synchronized (trampolines) {
 			synchronized (characters) {
-				/*** SPAWN ***/
-				doSpawn(deltaTime);
-				/****/
+				synchronized (collectibles) {
+					/*** SPAWN ***/
+					doSpawn(deltaTime);
+					/****/
+					
+					/*** COLLISIONS ***/
+					for (Trampoline t : trampolines) {
+						for (Character c : characters) {
+							if (t.intersectsCharacter(c)) {
+								c.pushVel(t.getBounce());
+								t.die();
+								break;
+							}
+						}
+					}
+					/****/
+					synchronized (entities) {
+						for (Entity e : entities)
+							e.update(deltaTime);
 				
-				/*** COLLISIONS ***/
-				for (Trampoline t : trampolines) {
-					for (Character c : characters) {
-						if (t.intersectsCharacter(c)) {
-							c.pushVel(t.getBounce());
-							t.die();
-							break;
+						// Removals
+						for (Entity e : deadEntities)  {
+							entities.remove(e);
+							
+							switch (e.type){
+							case Trampoline:
+								trampolines.remove(e); break;
+							case Character:
+								characters.remove(e); 
+								lives--;
+								break;
+							case Collectible:
+								collectibles.remove(e); break;
+							}
 						}
 					}
 				}
-				/****/
-				
-				for (Trampoline t : trampolines)
-					t.update(deltaTime);
-				
-				for (Character c : characters)
-					c.update(deltaTime);
-			}
-		
-			// Removals
-			for (Trampoline t : deadTrampolines)  {
-				trampolines.remove(t);
 			}
 		}
-		deadTrampolines.clear();
+		deadEntities.clear();
 	}
 	
 	private void doSpawn (float deltaTime) {
-		/** CHARACTERS SPAWN **/
-		if (characters.size() < 2+mDifficulty) {
-			characters.add(new Character(this, characterImage));
+		synchronized (entities) {
+			/** CHARACTERS SPAWN **/
+			if (characters.size() < 2+mDifficulty) {
+				characterSpawnTime += deltaTime;
+				
+				if (characterSpawnTime > TIME_BETWEEN_CHARACTER_SPAWNS) {
+					characterSpawnTime = 0;
+					Character newChar = new Character(this, characterImage);
+					entities.add(newChar);
+					characters.add(newChar);
+				}
+			}
+			
+			/** COLLECTIBLES SPAWN **/
+			if (collectibles.size() < MAX_COLLECTIBLES) {
+				collectibleSpawnTime += deltaTime;
+				
+				if (collectibleSpawnTime > TIME_BETWEEN_COLLECTIBLE_SPAWNS) {
+					collectibleSpawnTime = 0;
+					
+					double aux = 2d*Math.random();
+					if (aux > 1) {
+						Collectible newCol = new Collectible(this);
+						entities.add(newCol);
+						collectibles.add(newCol);
+					}
+				}
+			}
 		}
 	}
 	
@@ -398,31 +449,27 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		if (canvas != null) {
 			scene.doDraw(canvas);
 			
-			synchronized (trampolines) {
-				for (Trampoline t : trampolines)
-					t.doDraw(canvas);
+			synchronized (entities) {
+				for (Entity e : entities)
+					e.doDraw(canvas);
 			}
-			
-			synchronized (characters) {
-				for (Character c : characters)
-					c.doDraw(canvas);
-			}
-			
-			//FPS.doDraw(canvas);
 		}
 	}
 	
-	public void notifyDeadTrampoline(Trampoline t) {
-		synchronized (deadTrampolines) {
-			deadTrampolines.add(t);
+	public void notifyDeadEntity(Entity e) {
+		synchronized (deadEntities) {
+			deadEntities.add(e);
 		}
 	}
 
 	public void actionDown(float x, float y) {
 		if (bTrampoline == null) {
 			bTrampoline = new Trampoline(this, x,y,x,y, true);
-			synchronized (trampolines) {
-				trampolines.add(bTrampoline);
+			synchronized (entities) {
+				synchronized (trampolines) {
+					entities.add(bTrampoline);
+					trampolines.add(bTrampoline);
+				}
 			}
 		}
 	}

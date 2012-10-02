@@ -9,7 +9,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.Log;
 
-public class Character {
+public class Character extends Entity {
 	private static final float DEF_GX = 0f;
 	private static final float DEF_GY = 250f;
 	
@@ -29,16 +29,16 @@ public class Character {
 	CharacterSprite sprite;
 		Matrix flipRightMatrix;
 	
-	GameActivity game;
-	
 	Vector2f pos, size;
 	
 	public Character (GameActivity game) {
 		this.game = game;
+		type = TYPE.Character;
 	}
 	
 	public Character (GameActivity game, Bitmap spriteSheet) {
 		this.game = game;
+		type = TYPE.Character;
 		doStart(spriteSheet);
 	}
 	
@@ -89,7 +89,7 @@ public class Character {
 			if (velocity.y < 0) velocity.y = 0;
 		}
 		else if (pos.y > game.getHeight()) {
-			if (velocity.y > 0) pos.y = 0;
+			if (velocity.y > 0) die();
 		}
 		
 		sprite.update(deltaTime, velocity);
@@ -115,5 +115,10 @@ public class Character {
 	public void pushVel(Vector2f bounce) {
 		velocity = bounce;
 		sprite.setJump();
+	}
+
+	@Override
+	public void die() {
+		game.notifyDeadEntity(this);
 	}
 }

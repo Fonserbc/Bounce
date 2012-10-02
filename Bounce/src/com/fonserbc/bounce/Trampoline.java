@@ -9,7 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Shader;
 import android.util.Log;
 
-public class Trampoline {
+public class Trampoline extends Entity {
 
 	private static final float EXTRA_FACTOR = 0.3f;
 	private static final int NUM_COLORS = 6;
@@ -17,8 +17,6 @@ public class Trampoline {
 	
 	private float MIN_LENGTH;
 	private float BOUNCE_FORCE;
-	
-	private GameActivity game;
 	
 	private boolean beingBuild = false;
 	
@@ -34,6 +32,7 @@ public class Trampoline {
 	public Trampoline (GameActivity game, float minX, float minY, float maxX, float maxY, boolean beingBuild) {
 		this.game = game;
 		this.beingBuild = beingBuild;
+		type = TYPE.Trampoline;
 		
 		MIN_LENGTH = game.getWidth()/10;
 		BOUNCE_FORCE = game.getHeight()*0.8f;
@@ -159,7 +158,7 @@ public class Trampoline {
 	}
 
 	public void die() {
-		game.notifyDeadTrampoline(this);		
+		game.notifyDeadEntity(this);		
 	}
 
 	public void setMax(float x, float y) {
