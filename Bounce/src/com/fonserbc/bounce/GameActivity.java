@@ -338,7 +338,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	            try {
 	            	synchronized (mSurfaceHolder) {
 	            		c = mSurfaceHolder.lockCanvas();
-	            		//FPS.tickStart();
 
 	                    if (!singleDraw) update();
 	                    doDraw(c);
@@ -347,14 +346,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	                if (c != null) {
 	                    mSurfaceHolder.unlockCanvasAndPost(c);
 	                }
-	                //FPS.tickEnd();
-	            }
-
-	            long sleepTime = -1; //FPS.getSleepTime();
-	            if (sleepTime > 0) {
-	            	try {
-	            		Thread.sleep(sleepTime);
-	            	} catch (InterruptedException e) {}
 	            }
 
 	            if (singleDraw) {
@@ -392,25 +383,27 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 							e.update(deltaTime);
 				
 						// Removals
-						for (Entity e : deadEntities)  {
-							entities.remove(e);
-							
-							switch (e.type){
-							case Trampoline:
-								trampolines.remove(e); break;
-							case Character:
-								characters.remove(e); 
-								lives--;
-								break;
-							case Collectible:
-								collectibles.remove(e); break;
+						synchronized (deadEntities) {
+							for (Entity e : deadEntities)  {
+								entities.remove(e);
+								
+								switch (e.type){
+								case Trampoline:
+									trampolines.remove(e); break;
+								case Character:
+									characters.remove(e); 
+									lives--;
+									break;
+								case Collectible:
+									collectibles.remove(e); break;
+								}
 							}
+							deadEntities.clear();
 						}
 					}
 				}
 			}
 		}
-		deadEntities.clear();
 	}
 	
 	private void doSpawn (float deltaTime) {
@@ -466,10 +459,10 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		if (bTrampoline == null) {
 			bTrampoline = new Trampoline(this, x,y,x,y, true);
 			synchronized (entities) {
-				synchronized (trampolines) {
-					entities.add(bTrampoline);
-					trampolines.add(bTrampoline);
-				}
+				entities.add(bTrampoline);
+			}
+			synchronized (trampolines) {
+				trampolines.add(bTrampoline);
 			}
 		}
 	}
