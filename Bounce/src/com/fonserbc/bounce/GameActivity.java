@@ -22,8 +22,10 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 
 public class GameActivity extends Activity implements Runnable, SurfaceHolder.Callback {
 	
@@ -61,6 +63,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		volatile boolean mAlive = true;
 	    boolean needPauseMenu = false;
 		boolean isSurfaceDestroyed = true;
+		boolean wasSurfaceDestroyed = false;
 	
 	public AlertDialog pauseMenu;
     
@@ -150,7 +153,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     	if (pauseMenu == null) popPauseMenu();
     	Log.v("BOUNCE", "onPause");
     	stopThread();
-    	if (pauseMenu != null) pauseMenu.cancel();
+    	if (pauseMenu != null) pauseMenu.dismiss();
     	super.onPause();
     }
     
@@ -196,10 +199,12 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			if (mMode == STATE_PAUSE) {
 				pauseMenu.cancel();
 				setState(STATE_RUNNING);
+				return true;
 			}
 			else {
 				setState(STATE_PAUSE);
 				popPauseMenu();
+				return true;
 			}
 		}
 		return super.onKeyDown(keyCode, event);
@@ -207,7 +212,35 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	
 	private void popPauseMenu() {
 		final GameActivity that = this;
+		View pauseView = getLayoutInflater().inflate(R.layout.pause_menu, null);
+			((Button)pauseView.findViewById(R.id.resume)).setOnClickListener(new View.OnClickListener() {
+	    		public void onClick(View view) {             
+	    			setState(STATE_RUNNING);
+	    			pauseMenu.cancel();
+	    		}});
+			((Button)pauseView.findViewById(R.id.quit)).setOnClickListener(new View.OnClickListener() {
+	    		public void onClick(View view) {             
+	    			that.finish();
+	    			pauseMenu.cancel();
+	    		}});
+			((Button)pauseView.findViewById(R.id.back_to_menu)).setOnClickListener(new View.OnClickListener() {
+	    		public void onClick(View view) {
+	    			onBackPressed();
+	    			pauseMenu.cancel();
+	    		}});
+		
 		pauseMenu = new AlertDialog.Builder(this)
+			.setTitle("Game Paused")
+			.setView(pauseView)
+			.setOnCancelListener(new DialogInterface.OnCancelListener() {
+				public void onCancel(DialogInterface dialog) {
+					setState(STATE_RUNNING);
+					pauseMenu.cancel();
+				}
+			})
+			.show();
+			
+		/*pauseMenu = new AlertDialog.Builder(this)
 		.setTitle("Game Paused")
         .setPositiveButton(R.string.resume, new DialogInterface.OnClickListener() {
     		public void onClick(DialogInterface dialog, int whichButton) {             
@@ -229,7 +262,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 				setState(STATE_RUNNING);
 			}
 		})
-        .show();		
+        .show();*/	
 	}
 	
 	public void setState(int state) {
@@ -274,6 +307,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		setState(STATE_PAUSE);
 		isSurfaceDestroyed = true;
+		wasSurfaceDestroyed = true;
 		canDraw = false;
 	}
 	
@@ -326,8 +360,9 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 
 	public void run() {
 		boolean singleDraw = false;
-		if (needPauseMenu) {
+		if (needPauseMenu && wasSurfaceDestroyed) {
 			singleDraw = true;
+			wasSurfaceDestroyed = false;
 		}
 		
 		while (mAlive) {
