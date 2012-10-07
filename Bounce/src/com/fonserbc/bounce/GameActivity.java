@@ -15,6 +15,8 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -66,8 +68,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		boolean wasSurfaceDestroyed = false;
 	
 	public AlertDialog pauseMenu;
-		boolean sure = false;
-		boolean decided = false;
+		boolean quitting = false;
     
 	Resources res;
 	
@@ -76,6 +77,10 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	/****************/
     int mMode;
     int mDifficulty = DIFFICULTY_MEDIUM;
+    int mPoints = 0;
+    float time = 0;
+    
+    Paint textPaint;
     
     int lives;
 	
@@ -222,15 +227,11 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	    		}});
 			((Button)pauseView.findViewById(R.id.quit)).setOnClickListener(new View.OnClickListener() {
 	    		public void onClick(View view) {
-	    			//if (popSureMenu())
-	    				that.finish();
-	    			pauseMenu.cancel();
+	    			popSureMenu(true);	
 	    		}});
 			((Button)pauseView.findViewById(R.id.back_to_menu)).setOnClickListener(new View.OnClickListener() {
 	    		public void onClick(View view) {
-	    			//if (popSureMenu())
-	    				onBackPressed();
-	    			pauseMenu.cancel();
+	    			popSureMenu(false);
 	    		}});
 		
 		pauseMenu = new AlertDialog.Builder(this)
@@ -245,27 +246,25 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			.show();
 	}
 	
-	public boolean popSureMenu() {
+	public void popSureMenu(boolean quit) {
+		quitting = quit;
 		final GameActivity that = this;
-		sure = false;
-		decided = false;
-		
+
 		new AlertDialog.Builder(this)
-		.setMessage(R.string.quit)
-        .setPositiveButton(R.string.quit, new DialogInterface.OnClickListener() {
-    		public void onClick(DialogInterface dialog, int whichButton) {             
-    			that.sure = true;
-    			that.decided = true;
-    		}
-        })
-        .setNegativeButton(R.string.resume, new DialogInterface.OnClickListener() {
+		.setMessage(R.string.sure_quit)
+        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
     		public void onClick(DialogInterface dialog, int whichButton) {
-    			that.decided = true;
+    			if (that.quitting) {
+	    			that.finish();
+	    			pauseMenu.cancel();
+    			}
+    			else {
+    				that.onBackPressed();
+    			}
     		}
         })
+        .setNegativeButton(R.string.no, null)
         .show();
-		
-		return sure;
 	}
 	
 	public void setState(int state) {
@@ -341,6 +340,10 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		timer = new Timer();
 		FPS = new FramesPerSecond(50);
 		scene = new Scene();
+		
+		textPaint = new Paint();
+		textPaint.setColor(Color.BLUE);
+		textPaint.setTextSize(20);
 		
 		entities = new ArrayList<Entity>();
 		trampolines = new ArrayList<Trampoline>();
@@ -420,6 +423,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 						for (Character ch : characters) {
 							if (c.collidesCharacter(ch)) {
 								c.die();
+								notifyCollectibleGet();
 							}
 						}
 					}
@@ -492,6 +496,8 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 				for (Entity e : entities)
 					e.doDraw(canvas);
 			}
+			
+			canvas.drawText(mPoints + " POINTS", mWidth - 10 - textPaint.measureText(mPoints + " POINTS"), 20, textPaint);
 		}
 	}
 	
@@ -499,6 +505,10 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		synchronized (deadEntities) {
 			deadEntities.add(e);
 		}
+	}
+	
+	public void notifyCollectibleGet() {
+		mPoints += 10;
 	}
 
 	public void actionDown(float x, float y) {

@@ -123,23 +123,26 @@ public class Collectible extends Entity {
 	}
 
 	public boolean collidesCharacter (Character c) {
-		Vector2f min = c.pos;
-		Vector2f max = new Vector2f(c.pos.x + c.size.x, c.pos.y + c.size.y);
-		Vector2f center = new Vector2f(pos.x + size.x/2, pos.y + size.y/2);
-		float radius = size.x/2;
-		
-		Vector2f closestPoint = new Vector2f(center.x, center.y);
-		
-		if (center.x < min.x) closestPoint.x = min.x;
-		else if (center.x > max.x) closestPoint.x = max.x;
-		if (center.y < min.y) closestPoint.y = min.y;
-		else if( center.y > max.y ) closestPoint.y = max.y;
-
-		Vector2f diff = new Vector2f(closestPoint.x - center.x, closestPoint.y - center.y);
-		
-		if (diff.x * diff.x + diff.y * diff.y > radius * radius) return false;
-		else {
-			return true;
+		if (!dead) {
+			Vector2f min = c.pos;
+			Vector2f max = new Vector2f(c.pos.x + c.size.x, c.pos.y + c.size.y);
+			Vector2f center = new Vector2f(pos.x + size.x/2, pos.y + size.y/2);
+			float radius = size.x/2;
+			
+			Vector2f closestPoint = new Vector2f(center.x, center.y);
+			
+			if (center.x < min.x) closestPoint.x = min.x;
+			else if (center.x > max.x) closestPoint.x = max.x;
+			if (center.y < min.y) closestPoint.y = min.y;
+			else if( center.y > max.y ) closestPoint.y = max.y;
+	
+			Vector2f diff = new Vector2f(closestPoint.x - center.x, closestPoint.y - center.y);
+			
+			if (diff.x * diff.x + diff.y * diff.y > radius * radius) return false;
+			else {
+				return true;
+			}
 		}
+		else return false;
 	}
 }
