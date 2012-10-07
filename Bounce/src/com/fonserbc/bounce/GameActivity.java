@@ -66,6 +66,8 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		boolean wasSurfaceDestroyed = false;
 	
 	public AlertDialog pauseMenu;
+		boolean sure = false;
+		boolean decided = false;
     
 	Resources res;
 	
@@ -219,13 +221,15 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	    			pauseMenu.cancel();
 	    		}});
 			((Button)pauseView.findViewById(R.id.quit)).setOnClickListener(new View.OnClickListener() {
-	    		public void onClick(View view) {             
-	    			that.finish();
+	    		public void onClick(View view) {
+	    			//if (popSureMenu())
+	    				that.finish();
 	    			pauseMenu.cancel();
 	    		}});
 			((Button)pauseView.findViewById(R.id.back_to_menu)).setOnClickListener(new View.OnClickListener() {
 	    		public void onClick(View view) {
-	    			onBackPressed();
+	    			//if (popSureMenu())
+	    				onBackPressed();
 	    			pauseMenu.cancel();
 	    		}});
 		
@@ -239,30 +243,29 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 				}
 			})
 			.show();
-			
-		/*pauseMenu = new AlertDialog.Builder(this)
-		.setTitle("Game Paused")
-        .setPositiveButton(R.string.resume, new DialogInterface.OnClickListener() {
+	}
+	
+	public boolean popSureMenu() {
+		final GameActivity that = this;
+		sure = false;
+		decided = false;
+		
+		new AlertDialog.Builder(this)
+		.setMessage(R.string.quit)
+        .setPositiveButton(R.string.quit, new DialogInterface.OnClickListener() {
     		public void onClick(DialogInterface dialog, int whichButton) {             
-    			setState(STATE_RUNNING);
+    			that.sure = true;
+    			that.decided = true;
     		}
         })
-        .setNegativeButton(R.string.quit, new DialogInterface.OnClickListener() {
-    		public void onClick(DialogInterface dialog, int whichButton) {             
-    			that.finish();
+        .setNegativeButton(R.string.resume, new DialogInterface.OnClickListener() {
+    		public void onClick(DialogInterface dialog, int whichButton) {
+    			that.decided = true;
     		}
         })
-        .setNeutralButton(R.string.back_menu, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				onBackPressed();
-			}
-		})
-        .setOnCancelListener(new DialogInterface.OnCancelListener() {
-			public void onCancel(DialogInterface dialog) {
-				setState(STATE_RUNNING);
-			}
-		})
-        .show();*/	
+        .show();
+		
+		return sure;
 	}
 	
 	public void setState(int state) {
