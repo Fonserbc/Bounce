@@ -46,10 +46,10 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     public static final int STATE_WIN = 5;	
     
     public static final int MAX_TRAMPOLINES = 3;
-    public static final int MAX_COLLECTIBLES = 5;
+    public static final int MAX_COLLECTIBLES = 10;
     
     public static final float TIME_BETWEEN_CHARACTER_SPAWNS = 5;
-    public static final float TIME_BETWEEN_COLLECTIBLE_SPAWNS = 2;
+    public static final float TIME_BETWEEN_COLLECTIBLE_SPAWNS = 1;
     
 	SurfaceView gameView;
 		SurfaceHolder mSurfaceHolder;
@@ -409,6 +409,14 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 								c.pushVel(t.getBounce());
 								t.die();
 								break;
+							}
+						}
+					}
+					
+					for (Collectible c : collectibles) {
+						for (Character ch : characters) {
+							if (c.collidesCharacter(ch)) {
+								c.die();
 							}
 						}
 					}

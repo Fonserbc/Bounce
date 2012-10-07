@@ -13,8 +13,8 @@ public class Character extends Entity {
 	private static final float DEF_GX = 0f;
 	private static final float DEF_GY = 250f;
 	
-	private static final float MAX_VX = 1000f;
-	private static final float MAX_VY = 500f;
+	private static final float MAX_VX = 750f;
+	private static final float MAX_VY = 350f;
 	
 	private static final float LATERAL_BOUNCE_X = 150f;
 	private static final float LATERAL_BOUNCE_Y = 80f;
@@ -49,9 +49,9 @@ public class Character extends Entity {
 		
 		gravity = new Vector2f(DEF_GX, DEF_GY);
 		
-		velocity = new Vector2f(0, -MAX_VY);
+		velocity = new Vector2f(0, 0);
 		
-		pos = new Vector2f(game.getWidth()/2 - sprite.getWidth()/2, game.getHeight());
+		pos = new Vector2f(game.getWidth()/2 - sprite.getWidth()/2, -sprite.getHeight());
 		size = new Vector2f(sprite.getWidth(), sprite.getHeight());
 	}
 	
