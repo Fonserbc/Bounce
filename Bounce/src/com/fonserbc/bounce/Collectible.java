@@ -2,6 +2,7 @@ package com.fonserbc.bounce;
 
 import com.fonserbc.bounce.utils.Vector2f;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -23,15 +24,25 @@ public class Collectible extends Entity {
 	public boolean dead = false;
 	public boolean leaving = false;
 	
+	private CollectibleSprite sprite;
+	
 	private Paint paint;
 	
-	public Collectible (GameActivity game) {
+	public Collectible (GameActivity game, Bitmap spriteSheet) {
 		this.game = game;
 		type = TYPE.Collectible;
 		
+		doStart(spriteSheet);
+	}
+	
+	public void doStart (Bitmap spriteSheet) {
+		sprite = new CollectibleSprite(this, spriteSheet, 4, 2);
+		
+		paint = new Paint();
+		
 		MAX_Y = game.mHeight*4/5;
 		
-		size = new Vector2f(game.mWidth/20, game.mWidth/20);
+		size = new Vector2f(sprite.getWidth(), sprite.getHeight());
 		
 		if (Math.random()*20 > 10) {
 			pos = new Vector2f(-size.x, size.y/2 + (float)Math.random()*(game.mHeight*3/4));
@@ -41,9 +52,6 @@ public class Collectible extends Entity {
 			pos = new Vector2f(game.mWidth, size.y/2 + (float)Math.random()*(game.mHeight*3/4));
 			vel = new Vector2f(-SPEED, 0);
 		}
-		
-		paint = new Paint();
-		paint.setColor(Color.YELLOW);
 	}
 	
 	@Override
@@ -106,11 +114,13 @@ public class Collectible extends Entity {
 				if (pos.x+size.x < 0 || pos.x > game.mWidth) destroy();
 			}
 		}
+		
+		sprite.update(deltaTime, vel);
 	}
 
 	@Override
 	public void doDraw(Canvas c) {
-		c.drawCircle(pos.x+size.x/2, pos.y+size.y/2, size.x/2, paint);
+		sprite.doDraw(c, pos, paint);
 	}
 
 	@Override

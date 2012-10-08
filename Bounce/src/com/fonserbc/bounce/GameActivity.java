@@ -101,6 +101,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	private ArrayList<Entity> deadEntities;
 	
 	private Bitmap characterImage;
+	private Bitmap collectibleImage;
 	
 	private Trampoline bTrampoline;
 	/****************/
@@ -355,6 +356,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	public void doStart() {
 		characterImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.character_sheet_big), mWidth/2, mHeight/4, false);
 		//characterImage = BitmapFactory.decodeResource(res, R.drawable.character_sheet_big);
+		collectibleImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.pigeon_sheet_big), mWidth/2, mHeight/8, false);
 		
 		float defTrampXm = mWidth/16;
 		float defTrampXM = mWidth - mWidth/16;
@@ -479,7 +481,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 					
 					double aux = 2d*Math.random();
 					if (aux > 1) {
-						Collectible newCol = new Collectible(this);
+						Collectible newCol = new Collectible(this, collectibleImage);
 						entities.add(newCol);
 						collectibles.add(newCol);
 					}
