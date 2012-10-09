@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import com.fonserbc.bounce.utils.FramesPerSecond;
 import com.fonserbc.bounce.utils.Timer;
 
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
@@ -541,6 +543,16 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 				bTrampoline = null;
 			}
 		}
+	}
+	
+	public void playSound (int id) {
+		MediaPlayer player = MediaPlayer.create(this, id);
+		player.setOnCompletionListener(new OnCompletionListener() {
+            public void onCompletion(MediaPlayer mp) {
+                mp.release();
+            }
+        });   
+        player.start();
 	}
 	
 	public int getWidth() {
