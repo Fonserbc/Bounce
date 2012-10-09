@@ -74,6 +74,8 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     
 	Resources res;
 	
+	public boolean soundOn = true;
+	
 	/****************/
 	/** GAME STUFF **/
 	/****************/
@@ -546,13 +548,15 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	}
 	
 	public void playSound (int id) {
-		MediaPlayer player = MediaPlayer.create(this, id);
-		player.setOnCompletionListener(new OnCompletionListener() {
-            public void onCompletion(MediaPlayer mp) {
-                mp.release();
-            }
-        });   
-        player.start();
+		if (soundOn) {
+			MediaPlayer player = MediaPlayer.create(this, id);
+			player.setOnCompletionListener(new OnCompletionListener() {
+	            public void onCompletion(MediaPlayer mp) {
+	                mp.release();
+	            }
+	        });   
+	        player.start();
+		}
 	}
 	
 	public int getWidth() {

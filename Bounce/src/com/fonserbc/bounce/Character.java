@@ -121,5 +121,6 @@ public class Character extends Entity {
 	@Override
 	public void die() {
 		game.notifyDeadEntity(this);
+		game.playSound(R.raw.die);
 	}
 }

@@ -11,6 +11,7 @@ public class CollectibleSprite {
 
 	private static final int AUG = 4;
 	private static final float FREQUENCY = 0.25f;
+	private static final float DEAD_TIME = 0.4f;
 
 	Collectible col;
 	
@@ -24,6 +25,8 @@ public class CollectibleSprite {
 	Rect source;
 	
 	int X, Y;
+	
+	boolean dead = false;
 	
 	public CollectibleSprite(Collectible col, Bitmap spriteSheet, int tilingX, int tilingY) {
 		sprite = spriteSheet;
@@ -57,14 +60,33 @@ public class CollectibleSprite {
 	public void update(float deltaTime, Vector2f v) {
 		time += deltaTime;
 		
-		if (time > FREQUENCY) {
-			time = 0;
-			X = (X+1)%2;
+		if (!dead) {
+			if (time > FREQUENCY) {
+				time = 0;
+				X = (X+1)%2;
+			}
+		}
+		else {
+			if (time < DEAD_TIME/2) {
+				X = 2;
+			}
+			else if (time < DEAD_TIME) {
+				X = 3;
+			}
+			else {
+				col.destroy();
+			}
 		}
 		
 		if (v.x > 0) Y = 0;
 		else Y = 1;
 		
+		
 		source = new Rect(X*iWidth + X*AUG, Y*iHeight + Y*AUG, X*iWidth + X*AUG + iWidth, Y*iHeight + Y*AUG + iHeight);
+	}
+
+	public void die() {
+		dead = true;
+		time = 0;
 	}
 }

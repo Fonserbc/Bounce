@@ -12,7 +12,6 @@ public class Collectible extends Entity {
 	private static float LIFE_TIME = 10;
 	private static float CHANGE_TIME = 1;
 	private static float SPEED = 60f;
-	private static float FADE_SPEED = 200;
 	
 	private float MAX_Y;
 	
@@ -26,8 +25,6 @@ public class Collectible extends Entity {
 	
 	private CollectibleSprite sprite;
 	
-	private Paint paint;
-	
 	public Collectible (GameActivity game, Bitmap spriteSheet) {
 		this.game = game;
 		type = TYPE.Collectible;
@@ -37,8 +34,6 @@ public class Collectible extends Entity {
 	
 	public void doStart (Bitmap spriteSheet) {
 		sprite = new CollectibleSprite(this, spriteSheet, 4, 2);
-		
-		paint = new Paint();
 		
 		MAX_Y = game.mHeight*4/5;
 		
@@ -64,8 +59,8 @@ public class Collectible extends Entity {
 			
 			if ((pos.x < 0 && vel.x < 0) || (pos.x+size.x > game.mWidth && vel.x > 0)) {
 				if (time > LIFE_TIME) {
-					die();
 					leaving = true;
+					die();
 				}
 				else {
 					vel.x = -vel.x;
@@ -96,18 +91,7 @@ public class Collectible extends Entity {
 			}
 		}
 		else {
-			if (!leaving) {
-				int alpha = paint.getAlpha();
-				alpha -= FADE_SPEED*deltaTime;
-				
-				if (alpha < 0) {
-					alpha = 0;
-					destroy();
-				}
-				
-				paint.setAlpha(alpha);
-			}
-			else {
+			if (leaving) {
 				pos.x += vel.x*deltaTime;
 				pos.y += vel.y*deltaTime;
 				
@@ -120,12 +104,14 @@ public class Collectible extends Entity {
 
 	@Override
 	public void doDraw(Canvas c) {
-		sprite.doDraw(c, pos, paint);
+		sprite.doDraw(c, pos, null);
 	}
 
 	@Override
 	public void die() {
 		dead = true;
+		sprite.die();
+		if (!leaving) game.playSound(R.raw.hit);
 	}
 	
 	public void destroy() {
