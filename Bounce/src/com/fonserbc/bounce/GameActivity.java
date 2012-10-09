@@ -1,12 +1,15 @@
 package com.fonserbc.bounce;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import com.fonserbc.bounce.utils.FramesPerSecond;
 import com.fonserbc.bounce.utils.Timer;
 
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
@@ -371,6 +374,8 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	}
 
 	public void run() {
+		//playMusic();
+		
 		boolean singleDraw = false;
 		if (needPauseMenu && wasSurfaceDestroyed) {
 			singleDraw = true;
@@ -550,12 +555,32 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	public void playSound (int id) {
 		if (soundOn) {
 			MediaPlayer player = MediaPlayer.create(this, id);
+			player.setVolume(0.2f, 0.2f);
 			player.setOnCompletionListener(new OnCompletionListener() {
 	            public void onCompletion(MediaPlayer mp) {
 	                mp.release();
 	            }
 	        });   
 	        player.start();
+		}
+	}
+	
+	public void playMusic () {
+		if (soundOn) {
+			MediaPlayer player = MediaPlayer.create(GameActivity.this, R.raw.bounce);
+			player.setVolume(0.5f,  0.5f);
+			player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+			try {
+				player.prepare();
+			} catch (IllegalStateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			player.setLooping(true);
+			player.start();
 		}
 	}
 	
