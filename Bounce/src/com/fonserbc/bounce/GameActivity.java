@@ -248,7 +248,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			.setOnCancelListener(new DialogInterface.OnCancelListener() {
 				public void onCancel(DialogInterface dialog) {
 					setState(STATE_RUNNING);
-					pauseMenu.cancel();
 				}
 			})
 			.show();

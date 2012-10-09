@@ -45,7 +45,7 @@ public class Character extends Entity {
 	public void doStart (Bitmap spriteSheet) {
 		sprite = new CharacterSprite(this, spriteSheet, 5, 2);
 		
-		maxVel = new Vector2f(MAX_VX, MAX_VY);
+		maxVel = new Vector2f(MAX_VX/480*game.mWidth, MAX_VY/800*game.mHeight);
 		
 		gravity = new Vector2f(DEF_GX, DEF_GY);
 		
