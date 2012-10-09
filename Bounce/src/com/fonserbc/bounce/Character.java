@@ -115,6 +115,7 @@ public class Character extends Entity {
 	public void pushVel(Vector2f bounce) {
 		velocity = bounce;
 		sprite.setJump();
+		game.playSound(R.raw.jump);
 	}
 
 	@Override
