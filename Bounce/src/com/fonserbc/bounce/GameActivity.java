@@ -16,6 +16,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -40,6 +41,8 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	 * I'm using tag "BOUNCE" for all the Verbose logs
 	 * 
 	 */
+	public static final String QUITTING_ID = "quitting";
+	
 	public static final int DEF_LIVES = 3;
 
 	public static final int DIFFICULTY_EASY = 0;
@@ -77,7 +80,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     
 	Resources res;
 	
-	public boolean soundOn = true;
+	public boolean soundOn = false;
 	
 	/****************/
 	/** GAME STUFF **/
@@ -262,6 +265,9 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
     		public void onClick(DialogInterface dialog, int whichButton) {
     			if (that.quitting) {
+    				Intent resultIntent = new Intent();
+    				resultIntent.putExtra(QUITTING_ID, 1);
+    				that.setResult(Activity.RESULT_OK, resultIntent);
 	    			that.finish();
 	    			pauseMenu.cancel();
     			}
