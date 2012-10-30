@@ -10,6 +10,6 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:text="@string/play"
-        android:textSize="@dimen/resume_text_size" />
+        android:textSize="@dimen/large_size" />
 
 </RelativeLayout>

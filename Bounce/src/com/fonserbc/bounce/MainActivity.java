@@ -3,6 +3,7 @@ package com.fonserbc.bounce;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -14,13 +15,20 @@ public class MainActivity extends Activity implements OnClickListener {
 	
 	private Intent game;
 	
+	private Typeface font;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
         Button play = (Button)findViewById(R.id.play);
+        
+        font = Typeface.createFromAsset(getAssets(), "fonts/Minecraftia.ttf");
+        play.setTypeface(font);
+        
         play.setOnClickListener(this);
+        
     }
 
     @Override

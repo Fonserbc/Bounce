@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<LinearLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical" xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:id="@+id/game_paused"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:text="@string/game_paused"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/big_size" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,12 +34,12 @@
             android:textSize="@dimen/normal_size" />
 
     </LinearLayout>
-
+
     <Button
         android:id="@+id/resume"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/resume"
-        android:textSize="@dimen/resume_text_size" />
+        android:textSize="@dimen/big_size" />
 
 </LinearLayout>

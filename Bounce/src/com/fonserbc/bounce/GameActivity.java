@@ -1,6 +1,7 @@
 package com.fonserbc.bounce;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import com.fonserbc.bounce.utils.FramesPerSecond;
@@ -23,6 +24,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -34,6 +36,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class GameActivity extends Activity implements Runnable, SurfaceHolder.Callback {
 	
@@ -43,7 +46,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	 */
 	public static final String QUITTING_ID = "quitting";
 	
-	public static final int DEF_LIVES = 3;
+	public static final int DEF_LIVES = 4;
 
 	public static final int DIFFICULTY_EASY = 0;
     public static final int DIFFICULTY_HARD = 2;
@@ -60,6 +63,8 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     
     public static final float TIME_BETWEEN_CHARACTER_SPAWNS = 5;
     public static final float TIME_BETWEEN_COLLECTIBLE_SPAWNS = 1;
+
+	private static final float TOTAL_TIME = 60f;
     
 	SurfaceView gameView;
 		SurfaceHolder mSurfaceHolder;
@@ -80,6 +85,10 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     
 	Resources res;
 	
+	Typeface font;
+	
+	private DecimalFormat df = new DecimalFormat("0");
+	
 	public boolean soundOn = false;
 	
 	/****************/
@@ -90,11 +99,13 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     int mPoints = 0;
     float time = 0;
     
-    Paint textPaint;
+    Paint pointsPaint;
+    Paint timePaint;
     
     int lives;
 	
 	private Timer timer;
+		private float addedTime = 0;
 	
 	private FramesPerSecond FPS;
 	
@@ -125,6 +136,10 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         
+        font = Typeface.createFromAsset(getAssets(), "fonts/Minecraftia.ttf");
+        
+        setFonts();
+        
         setContentView(R.layout.game_view);
         
         init();
@@ -136,8 +151,8 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
         	Log.v("BOUNCE", "No saved instance");
         }
     }
-    
-    protected void onRestart() {
+
+	protected void onRestart() {
     	super.onStart();
     	Log.v("BOUNCE", "onRestart");
     	needPauseMenu = true;
@@ -228,39 +243,45 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		return super.onKeyDown(keyCode, event);
 	}
 	
+	private void setFonts() {
+			
+	}	
+	
 	private void popPauseMenu() {
 		final GameActivity that = this;
 		View pauseView = getLayoutInflater().inflate(R.layout.pause_menu, null);
+		((TextView) pauseView.findViewById(R.id.game_paused)).setTypeface(font);
 			((Button)pauseView.findViewById(R.id.resume)).setOnClickListener(new View.OnClickListener() {
 	    		public void onClick(View view) {             
 	    			setState(STATE_RUNNING);
 	    			pauseMenu.cancel();
 	    		}});
+			((TextView) pauseView.findViewById(R.id.resume)).setTypeface(font);
 			((Button)pauseView.findViewById(R.id.quit)).setOnClickListener(new View.OnClickListener() {
 	    		public void onClick(View view) {
 	    			popSureMenu(true);	
 	    		}});
+			((TextView) pauseView.findViewById(R.id.quit)).setTypeface(font);
 			((Button)pauseView.findViewById(R.id.back_to_menu)).setOnClickListener(new View.OnClickListener() {
 	    		public void onClick(View view) {
 	    			popSureMenu(false);
 	    		}});
+			((TextView) pauseView.findViewById(R.id.back_to_menu)).setTypeface(font);
 		
 		pauseMenu = new AlertDialog.Builder(this)
-			.setTitle("Game Paused")
 			.setView(pauseView)
 			.setOnCancelListener(new DialogInterface.OnCancelListener() {
 				public void onCancel(DialogInterface dialog) {
 					setState(STATE_RUNNING);
 				}
-			})
-			.show();
+			}).show();
 	}
 	
 	public void popSureMenu(boolean quit) {
 		quitting = quit;
 		final GameActivity that = this;
 
-		new AlertDialog.Builder(this)
+		AlertDialog sure = new AlertDialog.Builder(this)
 		.setMessage(R.string.sure_quit)
         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
     		public void onClick(DialogInterface dialog, int whichButton) {
@@ -278,6 +299,9 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
         })
         .setNegativeButton(R.string.no, null)
         .show();
+		((TextView) sure.findViewById(android.R.id.message)).setTypeface(font);
+		((TextView) sure.findViewById(android.R.id.button1)).setTypeface(font);
+		((TextView) sure.findViewById(android.R.id.button2)).setTypeface(font);
 	}
 	
 	public void setState(int state) {
@@ -354,9 +378,15 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		FPS = new FramesPerSecond(50);
 		scene = new Scene();
 		
-		textPaint = new Paint();
-		textPaint.setColor(Color.BLUE);
-		textPaint.setTextSize(20);
+		pointsPaint = new Paint();
+		pointsPaint.setTypeface(font);
+		pointsPaint.setColor(Color.BLUE);
+		pointsPaint.setTextSize(30);
+		
+		timePaint = new Paint();
+		timePaint.setTypeface(font);
+		timePaint.setColor(Color.YELLOW);
+		timePaint.setTextSize(40);
 		
 		entities = new ArrayList<Entity>();
 		trampolines = new ArrayList<Trampoline>();
@@ -367,7 +397,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	
 	public void doStart() {
 		characterImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.character_sheet_big), mWidth/2, mHeight/4, false);
-		//characterImage = BitmapFactory.decodeResource(res, R.drawable.character_sheet_big);
 		collectibleImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.pigeon_sheet_big), mWidth/2, mHeight/8, false);
 		
 		float defTrampXm = mWidth/16;
@@ -513,7 +542,9 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 					e.doDraw(canvas);
 			}
 			
-			canvas.drawText(mPoints + " POINTS", mWidth - 10 - textPaint.measureText(mPoints + " POINTS"), 20, textPaint);
+			canvas.drawText(""+mPoints, mWidth - 10 - pointsPaint.measureText(""+mPoints), pointsPaint.getTextSize() + 10, pointsPaint);
+			String time = df.format(TOTAL_TIME + addedTime - timer.getGameTime());
+			canvas.drawText(time, mWidth/2 - timePaint.measureText(time)/2, timePaint.getTextSize()-5, timePaint);
 		}
 	}
 	
@@ -525,6 +556,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	
 	public void notifyCollectibleGet() {
 		mPoints += 10;
+		addedTime += 2;
 	}
 
 	public void actionDown(float x, float y) {
