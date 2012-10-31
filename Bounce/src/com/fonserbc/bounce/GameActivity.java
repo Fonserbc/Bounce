@@ -45,6 +45,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	 * 
 	 */
 	public static final String QUITTING_ID = "quitting";
+	public static final String SOUND_ON_ID = "soundOn";
 	
 	public static final int DEF_LIVES = 4;
 
@@ -136,9 +137,14 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         
-        font = Typeface.createFromAsset(getAssets(), "fonts/Minecraftia.ttf");
+        // Retrieve passed values
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            soundOn = extras.getBoolean(SOUND_ON_ID);
+        }
         
-        setFonts();
+        font = Typeface.createFromAsset(getAssets(), "fonts/Minecraftia.ttf");        
+        //setFonts();
         
         setContentView(R.layout.game_view);
         
