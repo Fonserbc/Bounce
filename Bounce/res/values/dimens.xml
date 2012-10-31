@@ -3,4 +3,5 @@
     <dimen name="big_size">43px</dimen>
     <dimen name="normal_size">32px</dimen>
     <dimen name="large_size">64px</dimen>
+    <dimen name="very_large_size">80px</dimen>
 </resources>

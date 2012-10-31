@@ -14,5 +14,9 @@
     <string name="menu_settings">Settings</string>
     <string name="play">Play</string>
     <string name="sound">Sound</string>
+    <string name="font">Minecraftia</string>
+    <string name="sound_check_summary">Wheter the sound is active or not</string>
+    <string name="sound_music">Sound and Music</string>
+    <string name="prefs_soundOn">soundOn</string>
 
 </resources>

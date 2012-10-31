@@ -2,21 +2,22 @@
 <LinearLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" xmlns:android="http://schemas.android.com/apk/res/android">
-
+
     <TextView
         android:id="@+id/game_paused"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
+        android:layout_gravity="center_horizontal"
         android:text="@string/game_paused"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@android:color/white"
         android:textSize="@dimen/big_size" />
-
+
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal" >
+
         <Button
             android:id="@+id/quit"
             style="?android:attr/buttonStyleSmall"
@@ -24,7 +25,7 @@
             android:layout_height="match_parent"
             android:text="@string/quit"
             android:textSize="@dimen/normal_size" />
-
+
         <Button
             android:id="@+id/back_to_menu"
             style="?android:attr/buttonStyleSmall"
@@ -32,13 +33,13 @@
             android:layout_height="match_parent"
             android:text="@string/back_menu"
             android:textSize="@dimen/normal_size" />
-
     </LinearLayout>
-
+
     <Button
         android:id="@+id/resume"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:text="@string/resume"
         android:textSize="@dimen/big_size" />
 

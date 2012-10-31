@@ -1,10 +1,12 @@
 package com.fonserbc.bounce;
 
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,6 +18,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	private static final int GAME_RESULT = 1;
 	
 	private Intent game;
+	private Intent settings;
 	
 	private Typeface font;
 	
@@ -27,31 +30,32 @@ public class MainActivity extends Activity implements OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //setContentView(R.layout.settings);
         setContentView(R.layout.activity_main);
         
         Button play = (Button)findViewById(R.id.play);
-        Button sound = (Button)findViewById(R.id.sound_on);
+        Button settings = (Button)findViewById(R.id.settings_button);
         
         font = Typeface.createFromAsset(getAssets(), "fonts/Minecraftia.ttf");
         play.setTypeface(font);
-        sound.setTypeface(font);
+        settings.setTypeface(font);
         
         play.setOnClickListener(this);
-        sound.setOnClickListener(this);
+        settings.setOnClickListener(this);
         
         restorePrefs();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main, menu);
-        return true;
     }
     
     @Override
     public void onPause() {
     	super.onPause();
-    	savePrefs();
+    	//savePrefs();
+    }
+    
+    @Override
+    public void onResume() {
+    	super.onResume();
+    	restorePrefs();
     }
 
 	public void onClick(View v) {
@@ -59,12 +63,13 @@ public class MainActivity extends Activity implements OnClickListener {
 		case R.id.play:
 			game = new Intent (this, GameActivity.class);
 			
-			game.putExtra(GameActivity.SOUND_ON_ID, soundOn);
-			
 			startActivityForResult(game, GAME_RESULT);
 			break;
-		case R.id.sound_on:
-			soundOn = ((CompoundButton) v).isChecked();
+		case R.id.settings_button:
+			settings = new Intent (this, Preferences.class);
+			startActivity(settings);
+			
+			break;
 		}
 	}
 	
@@ -91,9 +96,8 @@ public class MainActivity extends Activity implements OnClickListener {
 	}
     
     private void restorePrefs() {
-    	mPrefs = getPreferences(MODE_PRIVATE);
+    	mPrefs = PreferenceManager.getDefaultSharedPreferences(this);;
     	
-    	soundOn = mPrefs.getBoolean(GameActivity.SOUND_ON_ID, soundOn);
-    	((CompoundButton)findViewById(R.id.sound_on)).setChecked(soundOn);
+    	soundOn = mPrefs.getBoolean(getString(R.string.prefs_soundOn), soundOn);
 	}
 }

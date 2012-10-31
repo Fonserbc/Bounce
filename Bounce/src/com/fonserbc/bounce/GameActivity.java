@@ -13,11 +13,13 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -85,6 +87,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		boolean quitting = false;
     
 	Resources res;
+	SharedPreferences mPrefs;
 	
 	Typeface font;
 	
@@ -137,11 +140,10 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         
-        // Retrieve passed values
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            soundOn = extras.getBoolean(SOUND_ON_ID);
-        }
+        // Retrieve preference values
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);;
+    	
+    	soundOn = mPrefs.getBoolean(getString(R.string.prefs_soundOn), soundOn);
         
         font = Typeface.createFromAsset(getAssets(), "fonts/Minecraftia.ttf");        
         //setFonts();
@@ -234,7 +236,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     
 	@Override
 	public boolean onKeyDown (int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
+		if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_MENU) {
 			if (mMode == STATE_PAUSE) {
 				pauseMenu.cancel();
 				setState(STATE_RUNNING);
@@ -246,7 +248,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 				return true;
 			}
 		}
-		return super.onKeyDown(keyCode, event);
+		else return super.onKeyDown(keyCode, event);
 	}
 	
 	private void setFonts() {
