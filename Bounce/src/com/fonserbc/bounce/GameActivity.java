@@ -10,6 +10,7 @@ import com.fonserbc.bounce.utils.Timer;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -49,7 +50,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	public static final String QUITTING_ID = "quitting";
 	public static final String SOUND_ON_ID = "soundOn";
 	
-	public static final int DEF_LIVES = 4;
+	public static final int DEF_LIVES = 5;
 
 	public static final int DIFFICULTY_EASY = 0;
     public static final int DIFFICULTY_HARD = 2;
@@ -93,7 +94,9 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	
 	private DecimalFormat df = new DecimalFormat("0");
 	
-	public boolean soundOn = false;
+	private SoundPool mSoundPool;
+		public boolean soundOn = false;
+		float volume = 0f;
 	
 	/****************/
 	/** GAME STUFF **/
@@ -140,13 +143,10 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         
-        // Retrieve preference values
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);;
-    	
-    	soundOn = mPrefs.getBoolean(getString(R.string.prefs_soundOn), soundOn);
-        
         font = Typeface.createFromAsset(getAssets(), "fonts/Minecraftia.ttf");        
         //setFonts();
+        
+        restorePreferences();
         
         setContentView(R.layout.game_view);
         
@@ -376,12 +376,10 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	
 	public void init() {
 		Log.v("BOUNCE", "Init");
-		mDifficulty = DIFFICULTY_MEDIUM;
-		
-		lives = DEF_LIVES;
-		
 		res = getResources();
 		
+		mSoundPool = new SoundPool(20, AudioManager.STREAM_MUSIC, 0);
+				
 		timer = new Timer();
 		FPS = new FramesPerSecond(50);
 		scene = new Scene();
@@ -403,6 +401,17 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		deadEntities = new ArrayList<Entity>();
 	}
 	
+	private void restorePreferences() {
+		mPrefs = getSharedPreferences(getString(R.string.prefs_file), 0);		
+    	
+    	soundOn = mPrefs.getBoolean(getString(R.string.prefs_soundOn), soundOn);
+    	volume = mPrefs.getInt(getString(R.string.prefs_soundSlider), 3)/5f;
+		
+		mDifficulty = mPrefs.getInt(getString(R.string.prefs_difficulty), 1);
+		
+		lives = DEF_LIVES - mDifficulty;
+	}
+
 	public void doStart() {
 		characterImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.character_sheet_big), mWidth/2, mHeight/4, false);
 		collectibleImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.pigeon_sheet_big), mWidth/2, mHeight/8, false);
@@ -599,8 +608,10 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	
 	public void playSound (int id) {
 		if (soundOn) {
+			//int soundId = mSoundPool.load(getBaseContext(), id, 1);
+			//mSoundPool.play(soundId, (volume > 0.99f)? 0.99f : volume, (volume > 0.99f)? 0.99f : volume, 1, 0, 0);
 			MediaPlayer player = MediaPlayer.create(this, id);
-			player.setVolume(0.2f, 0.2f);
+			player.setVolume(volume, volume);
 			player.setOnCompletionListener(new OnCompletionListener() {
 	            public void onCompletion(MediaPlayer mp) {
 	                mp.release();
@@ -613,7 +624,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	public void playMusic () {
 		if (soundOn) {
 			MediaPlayer player = MediaPlayer.create(GameActivity.this, R.raw.bounce);
-			player.setVolume(0.5f,  0.5f);
+			player.setVolume(volume,  volume);
 			player.setAudioStreamType(AudioManager.STREAM_MUSIC);
 			try {
 				player.prepare();

@@ -6,22 +6,26 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
 
 public class Collectible extends Entity {
 
 	private static float LIFE_TIME = 10;
 	private static float CHANGE_TIME = 1;
-	private static float SPEED = 60f;
 	
+	private float SPEED = 70f;
 	private float MAX_Y;
+	private float CRITICAL_DISTANCE = 10;
 	
 	public Vector2f pos;
 	public Vector2f vel;
+		private Vector2f escape;
 	public Vector2f size;
 	private float time = 0;
 	private float changeTime = 0;
 	public boolean dead = false;
 	public boolean leaving = false;
+	public boolean inDanger = false;
 	
 	private CollectibleSprite sprite;
 	
@@ -35,7 +39,12 @@ public class Collectible extends Entity {
 	public void doStart (Bitmap spriteSheet) {
 		sprite = new CollectibleSprite(this, spriteSheet, 4, 2);
 		
+		SPEED *= 2;
+		SPEED /= 4-game.mDifficulty;
+		
 		MAX_Y = game.mHeight*4/5;
+		CRITICAL_DISTANCE = game.mWidth/(4-game.mDifficulty);
+		
 		
 		size = new Vector2f(sprite.getWidth(), sprite.getHeight());
 		
@@ -53,7 +62,9 @@ public class Collectible extends Entity {
 	public void update(float deltaTime) {
 		time += deltaTime;
 		
-		if (!dead) {		
+		if (!dead) {
+			if (pos.x > 0 && pos.x+size.x < game.mWidth && inDanger) vel = escape;
+				
 			pos.x += vel.x*deltaTime;
 			pos.y += vel.y*deltaTime;
 			
@@ -63,28 +74,32 @@ public class Collectible extends Entity {
 					die();
 				}
 				else {
-					vel.x = -vel.x;
+					if (pos.x < 0 && vel.x < 0) pos.x = 0;
+					else if (pos.x+size.x > game.mWidth && vel.x > 0) pos.x = game.mWidth-size.x;
+					if (!inDanger) vel.x = -vel.x;
 				}
 			}
 
 			if ((pos.y > MAX_Y && vel.y > 0) || (pos.y < 0 && vel.y < 0)) {
-				vel.y = -vel.y;
+				if (pos.y > MAX_Y && vel.y > 0) pos.y = MAX_Y;
+				else if (pos.y < 0 && vel.y < 0) pos.y = 0;
+				if (!inDanger) vel.y = -vel.y;
 			}
 			
 			changeTime += deltaTime;
 			
-			if (changeTime > CHANGE_TIME) {
+			if (!leaving && changeTime > CHANGE_TIME) {
 				changeTime = 0;
 				
 				float rand = (float) (Math.random()*4);
 				
 				if (rand > 2) {
 					if (rand > 3) {
-						vel.y = (float) (SPEED*Math.random());
+						vel.y = (float) (SPEED*Math.random()+SPEED/3);
 						if (rand-3 > 0.5) vel.y = -vel.y;
 					}
 					else {
-						vel.x = (float) (SPEED*Math.random());
+						vel.x = (float) (SPEED*Math.random()+SPEED/3);
 						if (rand-2 > 0.5) vel.x = -vel.x;
 					}
 				}
@@ -100,6 +115,7 @@ public class Collectible extends Entity {
 		}
 		
 		sprite.update(deltaTime, vel);
+		inDanger = false;
 	}
 
 	@Override
@@ -108,10 +124,12 @@ public class Collectible extends Entity {
 	}
 
 	@Override
-	public void die() {
-		dead = true;
-		sprite.die();
-		if (!leaving) game.playSound(R.raw.hit);
+	public void die() {		
+		if (!leaving) {
+			game.playSound(R.raw.hit);
+			dead = true;
+			sprite.die();
+		}
 	}
 	
 	public void destroy() {
@@ -119,7 +137,12 @@ public class Collectible extends Entity {
 	}
 
 	public boolean collidesCharacter (Character c) {
-		if (!dead) {
+		if (!dead && !leaving) {
+			if (c.pos.minus(pos).magnitude() < CRITICAL_DISTANCE) {
+				inDanger = true; 
+				escape = pos.minus(c.pos).normalized().scale(SPEED);
+			}
+			
 			Vector2f min = c.pos;
 			Vector2f max = new Vector2f(c.pos.x + c.size.x, c.pos.y + c.size.y);
 			Vector2f center = new Vector2f(pos.x + size.x/2, pos.y + size.y/2);

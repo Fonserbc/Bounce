@@ -1,17 +1,13 @@
 package com.fonserbc.bounce;
 
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.CompoundButton;
 
 public class MainActivity extends Activity implements OnClickListener {
 
@@ -22,15 +18,9 @@ public class MainActivity extends Activity implements OnClickListener {
 	
 	private Typeface font;
 	
-	// OPTIONS
-	SharedPreferences mPrefs;
-	
-	boolean soundOn = true;
-	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.settings);
         setContentView(R.layout.activity_main);
         
         Button play = (Button)findViewById(R.id.play);
@@ -42,20 +32,16 @@ public class MainActivity extends Activity implements OnClickListener {
         
         play.setOnClickListener(this);
         settings.setOnClickListener(this);
-        
-        restorePrefs();
     }
     
     @Override
     public void onPause() {
     	super.onPause();
-    	//savePrefs();
     }
     
     @Override
     public void onResume() {
     	super.onResume();
-    	restorePrefs();
     }
 
 	public void onClick(View v) {
@@ -85,19 +71,5 @@ public class MainActivity extends Activity implements OnClickListener {
 	      break; 
 	    } 
 	  } 
-	}
-	
-	private void savePrefs() {
-    	SharedPreferences.Editor ed = mPrefs.edit();
-    	
-        ed.putBoolean(GameActivity.SOUND_ON_ID, soundOn);
-        
-        ed.commit();
-	}
-    
-    private void restorePrefs() {
-    	mPrefs = PreferenceManager.getDefaultSharedPreferences(this);;
-    	
-    	soundOn = mPrefs.getBoolean(getString(R.string.prefs_soundOn), soundOn);
 	}
 }
