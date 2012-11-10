@@ -14,6 +14,8 @@ public class Trampoline extends Entity {
 	private static final float EXTRA_FACTOR = 0.3f;
 	private static final int NUM_COLORS = 6;
 	private static final float COLOR_SPEED = 0.05f;
+	private  float LIFE_TIME = 10f;
+	private static final float FADE_TIME = 3f;
 	
 	private float MIN_LENGTH;
 	private float BOUNCE_FORCE;
@@ -28,6 +30,7 @@ public class Trampoline extends Entity {
 		private int[] actualGradient;
 			private int[] gradientIt;
 		private float time;
+		private float lifeTime;
 	
 	public Trampoline (GameActivity game, float minX, float minY, float maxX, float maxY, boolean beingBuild) {
 		this.game = game;
@@ -69,6 +72,7 @@ public class Trampoline extends Entity {
 	
 	public void update(float deltaTime) {
 		time += deltaTime;
+		if (!beingBuild) lifeTime += deltaTime;
 		
 		if (time > COLOR_SPEED) {
 			time = 0;
@@ -77,12 +81,19 @@ public class Trampoline extends Entity {
 				gradientIt[i] = (gradientIt[i]+1)%NUM_COLORS;
 			}
 		}
+		
+		if (lifeTime > LIFE_TIME) {
+			die();
+			game.playSound(R.raw.fuse);
+		}
 	}
 	
 	public void doDraw(Canvas canvas) {
 		gradient = new LinearGradient(line[0], line[1], line[2], line[3], actualGradient, null, Shader.TileMode.REPEAT);
 		
 		linePaint.setShader(gradient);
+		if (beingBuild) linePaint.setAlpha(255/2);
+		else if (lifeTime + FADE_TIME > LIFE_TIME) linePaint.setAlpha((int) (255*((LIFE_TIME-lifeTime)/FADE_TIME)));
 		canvas.drawLine(line[0], line[1], line[2], line[3], linePaint);
 	}
 	
@@ -189,7 +200,14 @@ public class Trampoline extends Entity {
 				line[3] += dy;
 			}
 			beingBuild = false;
+			linePaint.setAlpha(255);
 		}
+	}
+
+	public void setLifetime(float t) {
+		if (t < 0) LIFE_TIME = game.TOTAL_TIME*2;
+		
+		else LIFE_TIME = t;
 	}
 	
 	

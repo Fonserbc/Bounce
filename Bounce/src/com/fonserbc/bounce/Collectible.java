@@ -126,7 +126,7 @@ public class Collectible extends Entity {
 	@Override
 	public void die() {		
 		if (!leaving) {
-			game.playSound(R.raw.hit);
+			game.playSound(R.raw.power_up);
 			dead = true;
 			sprite.die();
 		}

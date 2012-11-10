@@ -1,20 +1,14 @@
 package com.fonserbc.bounce;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-import com.fonserbc.bounce.utils.FramesPerSecond;
 import com.fonserbc.bounce.utils.Timer;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
 import android.media.SoundPool;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -30,8 +24,6 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -50,7 +42,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	public static final String QUITTING_ID = "quitting";
 	public static final String SOUND_ON_ID = "soundOn";
 	
-	public static final int DEF_LIVES = 5;
+	public static final int DEF_LIFES = 5;
 
 	public static final int DIFFICULTY_EASY = 0;
     public static final int DIFFICULTY_HARD = 2;
@@ -62,13 +54,13 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     public static final int STATE_RUNNING = 4;
     public static final int STATE_WIN = 5;	
     
-    public static final int MAX_TRAMPOLINES = 3;
-    public static final int MAX_COLLECTIBLES = 10;
+    public int MAX_TRAMPOLINES = 3;
+    public int MAX_COLLECTIBLES = 10;
     
     public static final float TIME_BETWEEN_CHARACTER_SPAWNS = 5;
     public static final float TIME_BETWEEN_COLLECTIBLE_SPAWNS = 1;
 
-	private static final float TOTAL_TIME = 60f;
+	static final float TOTAL_TIME = 60f;
     
 	SurfaceView gameView;
 		SurfaceHolder mSurfaceHolder;
@@ -103,6 +95,8 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			int sound_die;
 			int sound_music;
 			int sound_hit;
+			int sound_power_up;
+			int sound_fuse;
 	
 	/****************/
 	/** GAME STUFF **/
@@ -119,8 +113,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	
 	private Timer timer;
 		private float addedTime = 0;
-	
-	private FramesPerSecond FPS;
 	
 	private Scene scene;
 	
@@ -206,7 +198,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     
     protected void onStop() {
     	super.onStop();
-    	player.release();
+    	if (player != null) player.release();
     	Log.v("BOUNCE", "onStop");
     }
     
@@ -258,10 +250,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		else return super.onKeyDown(keyCode, event);
 	}
 	
-	private void setFonts() {
-			
-	}	
-	
 	private void popPauseMenu() {
 		Log.v("BOUNCE", "Popping pause menu");
 		final GameActivity that = this;
@@ -284,7 +272,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	    		}});
 			((TextView) pauseView.findViewById(R.id.back_to_menu)).setTypeface(font);
 		
-		pauseMenu = new AlertDialog.Builder(this)
+		pauseMenu = new AlertDialog.Builder(that)
 			.setView(pauseView)
 			.setOnCancelListener(new DialogInterface.OnCancelListener() {
 				public void onCancel(DialogInterface dialog) {
@@ -332,7 +320,8 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			Log.v("BOUNCE", "setState PAUSE");
 			break;
 		case STATE_LOSE:
-
+			finish();
+			break;
 		case STATE_WIN:
 
 		default:
@@ -393,9 +382,11 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			sound_die = mSoundPool.load(context, R.raw.die, 1);
 			sound_hit = mSoundPool.load(context, R.raw.hit, 1);
 			sound_music = mSoundPool.load(context, R.raw.bounce, 1);
+			sound_power_up = mSoundPool.load(context, R.raw.power_up, 1);
+			sound_fuse = mSoundPool.load(context, R.raw.fuse, 1);
 				
 		timer = new Timer();
-		FPS = new FramesPerSecond(50);
+		//FPS = new FramesPerSecond(50);
 		scene = new Scene();
 		
 		pointsPaint = new Paint();
@@ -424,7 +415,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		
 		mDifficulty = mPrefs.getInt(getString(R.string.prefs_difficulty), 1);
 		
-		lives = DEF_LIVES - mDifficulty;
+		lives = DEF_LIFES - mDifficulty;
 	}
 
 	public void doStart() {
@@ -435,6 +426,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		float defTrampXM = mWidth - mWidth/16;
 		float defTrampY = mHeight-mHeight/16;
 		Trampoline aux = new Trampoline(this, defTrampXm, defTrampY, defTrampXM, defTrampY, false);
+		aux.setLifetime(-1);
 		entities.add(aux);
 		trampolines.add(aux);
 	}
@@ -520,6 +512,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 								case Character:
 									characters.remove(e); 
 									lives--;
+									if (lives < 0) setState(STATE_LOSE);
 									break;
 								case Collectible:
 									collectibles.remove(e); break;
@@ -575,7 +568,11 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			}
 			
 			canvas.drawText(""+mPoints, mWidth - 10 - pointsPaint.measureText(""+mPoints), pointsPaint.getTextSize() + 10, pointsPaint);
-			String time = df.format(TOTAL_TIME + addedTime - timer.getGameTime());
+			canvas.drawText("Lives: "+lives, 10, pointsPaint.getTextSize() + 10, pointsPaint);
+			if (addedTime > timer.getGameTime()) addedTime = timer.getGameTime();
+			float leftTime = TOTAL_TIME + addedTime - timer.getGameTime();
+			if (leftTime < 0) setState(STATE_LOSE);
+			String time = df.format(leftTime);
 			canvas.drawText(time, mWidth/2 - timePaint.measureText(time)/2, timePaint.getTextSize()-5, timePaint);
 		}
 	}
@@ -628,30 +625,16 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			case R.raw.jump: soundId = sound_jump; break;
 			case R.raw.die: soundId = sound_die; break;
 			case R.raw.hit: soundId = sound_hit; break;
+			case R.raw.power_up: soundId = sound_power_up; break;
+			case R.raw.fuse: soundId = sound_fuse; break;
 			}
 			mSoundPool.play(soundId, (volume > 0.99f)? 0.99f : volume, (volume > 0.99f)? 0.99f : volume, 1, 0, 0);
-			/*MediaPlayer player = MediaPlayer.create(this, id);
-			player.setVolume(volume, volume);
-			player.setOnCompletionListener(new OnCompletionListener() {
-	            public void onCompletion(MediaPlayer mp) {
-	                mp.release();
-	            }
-	        });   
-	        player.start();*/
 		}
 	}
 	
 	public void playMusic () {
 		if (soundOn && musicOn) {
-			//mSoundPool.play(sound_music, (volume > 0.99f)? 0.99f : volume, (volume > 0.99f)? 0.99f : volume, 1, -1, 0);
 			player = MediaPlayer.create(getBaseContext(), R.raw.bounce);
-			/*try {
-				player.prepare();
-			} catch (IllegalStateException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}*/
 			player.setLooping(true);
 			player.setVolume(volume,  volume);
 			player.start();
