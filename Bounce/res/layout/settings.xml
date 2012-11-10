@@ -45,7 +45,18 @@
             android:layout_marginLeft="@dimen/normal_size"
             android:checked="true"
             android:text="@string/sound"
-            android:textSize="@dimen/normal_size" /><TextView
+            android:textSize="@dimen/normal_size" />
+
+        <CheckBox
+            android:id="@+id/music_on"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/large_size"
+            android:checked="true"
+            android:text="@string/music"
+            android:textSize="@dimen/medium_size" />
+
+<TextView
         android:id="@+id/difficulty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

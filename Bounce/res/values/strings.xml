@@ -18,11 +18,13 @@
     <string name="sound_music">Sound and Music</string>
     <string name="prefs_file">com.fonserbc.bounce.prefs</string>
     <string name="prefs_soundOn">soundOn</string>
+    <string name="prefs_musicOn">musicOn</string>
     <string name="prefs_difficulty">difficulty</string>
     <string name="prefs_soundSlider">sound_slider</string>
     <string name="difficulty">Difficulty</string>
     <string name="difficulty_easy">Easy</string>
     <string name="difficulty_normal">Normal</string>
     <string name="difficulty_hard">Hard</string>
+    <string name="music">Music</string>
 
 </resources>

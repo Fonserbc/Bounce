@@ -31,12 +31,15 @@ public class Preferences extends Activity implements OnClickListener, OnRatingBa
         ((TextView) findViewById(R.id.sound_music)).setTypeface(font);
         ((Button) findViewById(R.id.sound_on)).setTypeface(font);
         	((Button) findViewById(R.id.sound_on)).setOnClickListener(this);
+    	((Button) findViewById(R.id.music_on)).setTypeface(font);
+        	((Button) findViewById(R.id.music_on)).setOnClickListener(this);
         ((TextView) findViewById(R.id.difficulty)).setTypeface(font);
         ((TextView) findViewById(R.id.difficulty_text)).setTypeface(font);
         
         mPrefs = getSharedPreferences(getString(R.string.prefs_file), 0);
  
         ((CompoundButton)findViewById(R.id.sound_on)).setChecked(mPrefs.getBoolean(getString(R.string.prefs_soundOn), true));
+        ((CompoundButton)findViewById(R.id.music_on)).setChecked(mPrefs.getBoolean(getString(R.string.prefs_musicOn), true));
         ((SeekBar) findViewById(R.id.sound_slider)).setProgress(mPrefs.getInt(getString(R.string.prefs_soundSlider), 3));
         	((SeekBar) findViewById(R.id.sound_slider)).setEnabled(((CompoundButton)findViewById(R.id.sound_on)).isChecked());
         ((RatingBar)findViewById(R.id.difficulty_rating)).setRating(((float)mPrefs.getInt(getString(R.string.prefs_difficulty), 2))+1f);
@@ -51,6 +54,7 @@ public class Preferences extends Activity implements OnClickListener, OnRatingBa
     	
     	edit.putInt(getString(R.string.prefs_soundSlider), ((SeekBar) findViewById(R.id.sound_slider)).getProgress());
     	edit.putBoolean(getString(R.string.prefs_soundOn), ((CompoundButton)findViewById(R.id.sound_on)).isChecked());
+    	edit.putBoolean(getString(R.string.prefs_musicOn), ((CompoundButton)findViewById(R.id.music_on)).isChecked());
     	edit.putInt(getString(R.string.prefs_difficulty), (int) (((RatingBar)findViewById(R.id.difficulty_rating)).getRating()-0.5f));
     	
     	edit.commit();
@@ -60,6 +64,7 @@ public class Preferences extends Activity implements OnClickListener, OnRatingBa
 		switch (v.getId()) {
 		case R.id.sound_on:
 			((SeekBar) findViewById(R.id.sound_slider)).setEnabled(((CompoundButton)v).isChecked());
+			((CompoundButton)findViewById(R.id.music_on)).setEnabled(((CompoundButton)v).isChecked());
 		}
 	}
 

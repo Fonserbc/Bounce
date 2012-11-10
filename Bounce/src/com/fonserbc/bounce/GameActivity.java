@@ -95,8 +95,14 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	private DecimalFormat df = new DecimalFormat("0");
 	
 	private SoundPool mSoundPool;
+	MediaPlayer player;
 		public boolean soundOn = false;
+		public boolean musicOn = false;
 		float volume = 0f;
+			int sound_jump;
+			int sound_die;
+			int sound_music;
+			int sound_hit;
 	
 	/****************/
 	/** GAME STUFF **/
@@ -200,6 +206,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     
     protected void onStop() {
     	super.onStop();
+    	player.release();
     	Log.v("BOUNCE", "onStop");
     }
     
@@ -256,6 +263,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	}	
 	
 	private void popPauseMenu() {
+		Log.v("BOUNCE", "Popping pause menu");
 		final GameActivity that = this;
 		View pauseView = getLayoutInflater().inflate(R.layout.pause_menu, null);
 		((TextView) pauseView.findViewById(R.id.game_paused)).setTypeface(font);
@@ -378,7 +386,13 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		Log.v("BOUNCE", "Init");
 		res = getResources();
 		
+		Context context = getBaseContext();
+		
 		mSoundPool = new SoundPool(20, AudioManager.STREAM_MUSIC, 0);
+			sound_jump = mSoundPool.load(context, R.raw.jump, 1);
+			sound_die = mSoundPool.load(context, R.raw.die, 1);
+			sound_hit = mSoundPool.load(context, R.raw.hit, 1);
+			sound_music = mSoundPool.load(context, R.raw.bounce, 1);
 				
 		timer = new Timer();
 		FPS = new FramesPerSecond(50);
@@ -405,6 +419,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		mPrefs = getSharedPreferences(getString(R.string.prefs_file), 0);		
     	
     	soundOn = mPrefs.getBoolean(getString(R.string.prefs_soundOn), soundOn);
+    	musicOn = mPrefs.getBoolean(getString(R.string.prefs_musicOn), musicOn);
     	volume = mPrefs.getInt(getString(R.string.prefs_soundSlider), 3)/5f;
 		
 		mDifficulty = mPrefs.getInt(getString(R.string.prefs_difficulty), 1);
@@ -425,7 +440,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	}
 
 	public void run() {
-		//playMusic();
+		playMusic();
 		
 		boolean singleDraw = false;
 		if (needPauseMenu && wasSurfaceDestroyed) {
@@ -608,34 +623,37 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	
 	public void playSound (int id) {
 		if (soundOn) {
-			//int soundId = mSoundPool.load(getBaseContext(), id, 1);
-			//mSoundPool.play(soundId, (volume > 0.99f)? 0.99f : volume, (volume > 0.99f)? 0.99f : volume, 1, 0, 0);
-			MediaPlayer player = MediaPlayer.create(this, id);
+			int soundId = 0;
+			switch (id) {
+			case R.raw.jump: soundId = sound_jump; break;
+			case R.raw.die: soundId = sound_die; break;
+			case R.raw.hit: soundId = sound_hit; break;
+			}
+			mSoundPool.play(soundId, (volume > 0.99f)? 0.99f : volume, (volume > 0.99f)? 0.99f : volume, 1, 0, 0);
+			/*MediaPlayer player = MediaPlayer.create(this, id);
 			player.setVolume(volume, volume);
 			player.setOnCompletionListener(new OnCompletionListener() {
 	            public void onCompletion(MediaPlayer mp) {
 	                mp.release();
 	            }
 	        });   
-	        player.start();
+	        player.start();*/
 		}
 	}
 	
 	public void playMusic () {
-		if (soundOn) {
-			MediaPlayer player = MediaPlayer.create(GameActivity.this, R.raw.bounce);
-			player.setVolume(volume,  volume);
-			player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-			try {
+		if (soundOn && musicOn) {
+			//mSoundPool.play(sound_music, (volume > 0.99f)? 0.99f : volume, (volume > 0.99f)? 0.99f : volume, 1, -1, 0);
+			player = MediaPlayer.create(getBaseContext(), R.raw.bounce);
+			/*try {
 				player.prepare();
 			} catch (IllegalStateException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}*/
 			player.setLooping(true);
+			player.setVolume(volume,  volume);
 			player.start();
 		}
 	}
