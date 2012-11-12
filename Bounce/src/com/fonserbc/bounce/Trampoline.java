@@ -92,7 +92,7 @@ public class Trampoline extends Entity {
 		gradient = new LinearGradient(line[0], line[1], line[2], line[3], actualGradient, null, Shader.TileMode.REPEAT);
 		
 		linePaint.setShader(gradient);
-		if (beingBuild) linePaint.setAlpha(255/2);
+		if (beingBuild) linePaint.setAlpha(255/3);
 		else if (lifeTime + FADE_TIME > LIFE_TIME) linePaint.setAlpha((int) (255*((LIFE_TIME-lifeTime)/FADE_TIME)));
 		canvas.drawLine(line[0], line[1], line[2], line[3], linePaint);
 	}

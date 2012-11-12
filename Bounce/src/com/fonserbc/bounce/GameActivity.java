@@ -78,6 +78,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	
 	public AlertDialog pauseMenu;
 		boolean quitting = false;
+	public AlertDialog sureMenu;
     
 	Resources res;
 	SharedPreferences mPrefs;
@@ -191,6 +192,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     }
     
     protected void onPause() {
+    	if (sureMenu != null) sureMenu.cancel();
     	if (pauseMenu == null) popPauseMenu();
     	Log.v("BOUNCE", "onPause");
     	stopThread();
@@ -287,7 +289,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		quitting = quit;
 		final GameActivity that = this;
 
-		AlertDialog sure = new AlertDialog.Builder(this)
+		sureMenu = new AlertDialog.Builder(this)
 		.setMessage(R.string.sure_quit)
         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
     		public void onClick(DialogInterface dialog, int whichButton) {
@@ -305,9 +307,9 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
         })
         .setNegativeButton(R.string.no, null)
         .show();
-		((TextView) sure.findViewById(android.R.id.message)).setTypeface(font);
-		((TextView) sure.findViewById(android.R.id.button1)).setTypeface(font);
-		((TextView) sure.findViewById(android.R.id.button2)).setTypeface(font);
+		((TextView) sureMenu.findViewById(android.R.id.message)).setTypeface(font);
+		((TextView) sureMenu.findViewById(android.R.id.button1)).setTypeface(font);
+		((TextView) sureMenu.findViewById(android.R.id.button2)).setTypeface(font);
 	}
 	
 	public void setState(int state) {

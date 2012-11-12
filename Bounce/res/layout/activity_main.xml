@@ -12,8 +12,7 @@
         android:layout_marginBottom="@dimen/large_size"
         android:layout_marginTop="@dimen/large_size"
         android:text="@string/title_activity_main"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="@dimen/very_large_size" />
+        android:textAppearance="?android:attr/textAppearanceLarge" />
     
     <LinearLayout
         android:layout_width="wrap_content"
@@ -28,17 +27,17 @@
             android:id="@+id/play"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center_vertical|center_horizontal"
             android:text="@string/play"
-            android:textSize="@dimen/large_size" />
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <Button
             android:id="@+id/settings_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center_vertical|center_horizontal"
             android:text="@string/menu_settings"
-            android:textSize="@dimen/large_size" />
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
     </LinearLayout>
 </RelativeLayout>

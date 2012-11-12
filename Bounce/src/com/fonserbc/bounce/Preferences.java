@@ -40,6 +40,7 @@ public class Preferences extends Activity implements OnClickListener, OnRatingBa
  
         ((CompoundButton)findViewById(R.id.sound_on)).setChecked(mPrefs.getBoolean(getString(R.string.prefs_soundOn), true));
         ((CompoundButton)findViewById(R.id.music_on)).setChecked(mPrefs.getBoolean(getString(R.string.prefs_musicOn), true));
+        ((CompoundButton)findViewById(R.id.music_on)).setEnabled(((CompoundButton)findViewById(R.id.sound_on)).isChecked());
         ((SeekBar) findViewById(R.id.sound_slider)).setProgress(mPrefs.getInt(getString(R.string.prefs_soundSlider), 3));
         	((SeekBar) findViewById(R.id.sound_slider)).setEnabled(((CompoundButton)findViewById(R.id.sound_on)).isChecked());
         ((RatingBar)findViewById(R.id.difficulty_rating)).setRating(((float)mPrefs.getInt(getString(R.string.prefs_difficulty), 1))+1f);

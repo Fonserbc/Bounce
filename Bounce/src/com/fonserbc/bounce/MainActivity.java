@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnClickListener {
 
@@ -27,6 +28,7 @@ public class MainActivity extends Activity implements OnClickListener {
         Button settings = (Button)findViewById(R.id.settings_button);
         
         font = Typeface.createFromAsset(getAssets(), "fonts/Minecraftia.ttf");
+        ((TextView) findViewById(R.id.main_title)).setTypeface(font);
         play.setTypeface(font);
         settings.setTypeface(font);
         
