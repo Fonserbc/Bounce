@@ -42,7 +42,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	public static final String QUITTING_ID = "quitting";
 	public static final String SOUND_ON_ID = "soundOn";
 	
-	public static final int DEF_LIFES = 5;
+	public static final int DEF_LIFES = 6;
 
 	public static final int DIFFICULTY_EASY = 0;
     public static final int DIFFICULTY_HARD = 2;
@@ -103,6 +103,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	/****************/
     int mMode;
     int mDifficulty = DIFFICULTY_MEDIUM;
+    float mTimeSlow = 0;
     int mPoints = 0;
     float time = 0;
     
@@ -128,6 +129,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	
 	private Bitmap characterImage;
 	private Bitmap collectibleImage;
+	private Bitmap liveImage;
 	
 	private Trampoline bTrampoline;
 	/****************/
@@ -375,18 +377,25 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		Log.v("BOUNCE", "Init");
 		res = getResources();
 		
+		switch (mDifficulty) {
+		case DIFFICULTY_EASY: mTimeSlow = 0.5f; break;
+		case DIFFICULTY_MEDIUM: mTimeSlow = 0.25f; break;
+		case DIFFICULTY_HARD: mTimeSlow = 0f; break;
+		}
+		
 		Context context = getBaseContext();
 		
-		mSoundPool = new SoundPool(20, AudioManager.STREAM_MUSIC, 0);
+		if (soundOn) {
+			mSoundPool = new SoundPool(20, AudioManager.STREAM_MUSIC, 0);
 			sound_jump = mSoundPool.load(context, R.raw.jump, 1);
 			sound_die = mSoundPool.load(context, R.raw.die, 1);
 			sound_hit = mSoundPool.load(context, R.raw.hit, 1);
 			sound_music = mSoundPool.load(context, R.raw.bounce, 1);
 			sound_power_up = mSoundPool.load(context, R.raw.power_up, 1);
 			sound_fuse = mSoundPool.load(context, R.raw.fuse, 1);
+		}
 				
 		timer = new Timer();
-		//FPS = new FramesPerSecond(50);
 		scene = new Scene();
 		
 		pointsPaint = new Paint();
@@ -415,12 +424,13 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		
 		mDifficulty = mPrefs.getInt(getString(R.string.prefs_difficulty), 1);
 		
-		lives = DEF_LIFES - mDifficulty;
+		lives = DEF_LIFES;
 	}
 
 	public void doStart() {
 		characterImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.character_sheet_big), mWidth/2, mHeight/4, false);
 		collectibleImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.pigeon_sheet_big), mWidth/2, mHeight/8, false);
+		liveImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.heart_big), mWidth/16, mHeight/32, false);
 		
 		float defTrampXm = mWidth/16;
 		float defTrampXM = mWidth - mWidth/16;
@@ -468,7 +478,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	}
 	
 	private void update() {
-		float deltaTime = timer.tick();
+		float deltaTime = timer.tick()/(1f + mTimeSlow);
 		
 		synchronized (trampolines) {
 			synchronized (characters) {
@@ -511,8 +521,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 									trampolines.remove(e); break;
 								case Character:
 									characters.remove(e); 
-									lives--;
-									if (lives < 0) setState(STATE_LOSE);
 									break;
 								case Collectible:
 									collectibles.remove(e); break;
@@ -529,16 +537,19 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	private void doSpawn (float deltaTime) {
 		synchronized (entities) {
 			/** CHARACTERS SPAWN **/
-			if (characters.size() < 2+mDifficulty) {
+			if (lives > 0 && characters.size() < 1+mDifficulty) {
 				characterSpawnTime += deltaTime;
 				
 				if (characterSpawnTime > TIME_BETWEEN_CHARACTER_SPAWNS) {
+					lives--;
+					
 					characterSpawnTime = 0;
 					Character newChar = new Character(this, characterImage);
 					entities.add(newChar);
 					characters.add(newChar);
 				}
 			}
+			if (characters.size() == 0 && lives == 0) setState(STATE_LOSE);
 			
 			/** COLLECTIBLES SPAWN **/
 			if (collectibles.size() < MAX_COLLECTIBLES) {
@@ -568,7 +579,9 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			}
 			
 			canvas.drawText(""+mPoints, mWidth - 10 - pointsPaint.measureText(""+mPoints), pointsPaint.getTextSize() + 10, pointsPaint);
-			canvas.drawText("Lives: "+lives, 10, pointsPaint.getTextSize() + 10, pointsPaint);
+			//canvas.drawText("Lives: "+lives, 10, pointsPaint.getTextSize() + 10, pointsPaint);
+			for (int i = 0; i < lives; ++i)
+				canvas.drawBitmap(liveImage, 10, 10 + i*(liveImage.getHeight()+5), null);
 			if (addedTime > timer.getGameTime()) addedTime = timer.getGameTime();
 			float leftTime = TOTAL_TIME + addedTime - timer.getGameTime();
 			if (leftTime < 0) setState(STATE_LOSE);
