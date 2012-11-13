@@ -1,5 +1,7 @@
 package com.fonserbc.bounce;
 
+import java.io.IOException;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
@@ -19,21 +21,35 @@ public class MainActivity extends Activity implements OnClickListener {
 	
 	private Typeface font;
 	
+	private RankingManager rankingManager;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
         Button play = (Button)findViewById(R.id.play);
+        Button ranking = (Button)findViewById(R.id.ranking_button);
+        Button howto = (Button)findViewById(R.id.howto_button);
         Button settings = (Button)findViewById(R.id.settings_button);
         
         font = Typeface.createFromAsset(getAssets(), "fonts/Minecraftia.ttf");
         ((TextView) findViewById(R.id.main_title)).setTypeface(font);
         play.setTypeface(font);
+        ranking.setTypeface(font);
+        howto.setTypeface(font);
         settings.setTypeface(font);
         
         play.setOnClickListener(this);
+        ranking.setOnClickListener(this);
+        howto.setOnClickListener(this);
         settings.setOnClickListener(this);
+        
+        try {
+			rankingManager = RankingManager.getInstance(getBaseContext());
+		} catch (IOException e) {
+			Log.v("BOUNCE", "Could not access ranking");
+		}
     }
     
     @Override

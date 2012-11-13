@@ -1,5 +1,6 @@
 package com.fonserbc.bounce;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -98,6 +99,8 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			int sound_hit;
 			int sound_power_up;
 			int sound_fuse;
+			
+	private RankingManager ranking;
 	
 	/****************/
 	/** GAME STUFF **/
@@ -159,6 +162,12 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
         else {
         	Log.v("BOUNCE", "No saved instance");
         }
+        
+        try {
+			ranking = RankingManager.getInstance(getBaseContext());
+		} catch (IOException e) {
+			Log.v("BOUNCE", "Could not open rankings");
+		}
     }
 
 	protected void onRestart() {
@@ -395,6 +404,24 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			sound_music = mSoundPool.load(context, R.raw.bounce, 1);
 			sound_power_up = mSoundPool.load(context, R.raw.power_up, 1);
 			sound_fuse = mSoundPool.load(context, R.raw.fuse, 1);
+			
+			/*boolean ready_jump = false;
+			boolean ready_die = false;
+			boolean ready_hit = false;
+			boolean ready_music = false;
+			boolean ready_power_up = false;
+			boolean ready_fuse = false;
+			int it = 0;
+			while (!(ready_jump && ready_die && ready_hit && ready_music && ready_power_up && ready_fuse)) {
+				if (!ready_jump) ready_jump = mSoundPool.play(sound_jump, 0f, 0f, 0, 0, 0) > 0;
+				if (!ready_die) ready_die = mSoundPool.play(sound_die, 0f, 0f, 0, 0, 0) > 0;
+				if (!ready_hit) ready_hit = mSoundPool.play(sound_hit, 0f, 0f, 0, 0, 0) > 0;
+				if (!ready_music) ready_music = mSoundPool.play(sound_music, 0f, 0f, 0, 0, 0) > 0;
+				if (!ready_power_up) ready_power_up = mSoundPool.play(sound_power_up, 0f, 0f, 0, 0, 0) > 0;
+				if (!ready_fuse) ready_fuse = mSoundPool.play(sound_fuse, 0f, 0f, 0, 0, 0) > 0;
+				++it;
+			}
+			Log.v("BOUNCE", ""+it);*/
 		}
 				
 		timer = new Timer();
@@ -651,7 +678,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		if (soundOn && musicOn) {
 			player = MediaPlayer.create(getBaseContext(), R.raw.bounce);
 			player.setLooping(true);
-			player.setVolume(volume,  volume);
+			player.setVolume(volume*0.7f,  volume*0.7f);
 			player.start();
 		}
 	}

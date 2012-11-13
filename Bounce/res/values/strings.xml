@@ -26,5 +26,7 @@
     <string name="difficulty_normal">Normal</string>
     <string name="difficulty_hard">Hard</string>
     <string name="music">Music</string>
+    <string name="menu_howto">How to play</string>
+    <string name="menu_ranking">Rankings</string>
 
 </resources>
