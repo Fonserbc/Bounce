@@ -147,8 +147,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         
-        font = Typeface.createFromAsset(getAssets(), "fonts/Minecraftia.ttf");        
-        //setFonts();
+        font = Typeface.createFromAsset(getAssets(), getString(R.string.font));
         
         restorePreferences();
         
@@ -322,7 +321,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	}
 	
 	public void setState(int state) {
-		mMode = state;
 		switch(state) {
 		case STATE_RUNNING:
 			mRun = true;
@@ -333,12 +331,13 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			Log.v("BOUNCE", "setState PAUSE");
 			break;
 		case STATE_LOSE:
-			finish();
+			if (mMode != STATE_LOSE) endGame();
 			break;
 		case STATE_WIN:
 
 		default:
 		}
+		mMode = state;
 	}
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
@@ -404,24 +403,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			sound_music = mSoundPool.load(context, R.raw.bounce, 1);
 			sound_power_up = mSoundPool.load(context, R.raw.power_up, 1);
 			sound_fuse = mSoundPool.load(context, R.raw.fuse, 1);
-			
-			/*boolean ready_jump = false;
-			boolean ready_die = false;
-			boolean ready_hit = false;
-			boolean ready_music = false;
-			boolean ready_power_up = false;
-			boolean ready_fuse = false;
-			int it = 0;
-			while (!(ready_jump && ready_die && ready_hit && ready_music && ready_power_up && ready_fuse)) {
-				if (!ready_jump) ready_jump = mSoundPool.play(sound_jump, 0f, 0f, 0, 0, 0) > 0;
-				if (!ready_die) ready_die = mSoundPool.play(sound_die, 0f, 0f, 0, 0, 0) > 0;
-				if (!ready_hit) ready_hit = mSoundPool.play(sound_hit, 0f, 0f, 0, 0, 0) > 0;
-				if (!ready_music) ready_music = mSoundPool.play(sound_music, 0f, 0f, 0, 0, 0) > 0;
-				if (!ready_power_up) ready_power_up = mSoundPool.play(sound_power_up, 0f, 0f, 0, 0, 0) > 0;
-				if (!ready_fuse) ready_fuse = mSoundPool.play(sound_fuse, 0f, 0f, 0, 0, 0) > 0;
-				++it;
-			}
-			Log.v("BOUNCE", ""+it);*/
 		}
 				
 		timer = new Timer();
@@ -613,7 +594,10 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 				canvas.drawBitmap(liveImage, 10, 10 + i*(liveImage.getHeight()+5), null);
 			if (addedTime > timer.getGameTime()) addedTime = timer.getGameTime();
 			float leftTime = TOTAL_TIME + addedTime - timer.getGameTime();
-			if (leftTime < 0) setState(STATE_LOSE);
+			if (leftTime < 0.1) {
+				setState(STATE_LOSE);
+				leftTime = 0.05f;
+			}
 			String time = df.format(leftTime);
 			canvas.drawText(time, mWidth/2 - timePaint.measureText(time)/2, timePaint.getTextSize()-5, timePaint);
 		}
@@ -693,5 +677,13 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 
 	public int getTrampolinesCont() {
 		return trampolines.size();
+	}
+	
+	private void endGame() {
+		if (ranking.isWorth(mDifficulty, mPoints)) {
+			ranking.register(mDifficulty, "TestName", mPoints);
+		}
+		
+		finish();		
 	}
 }

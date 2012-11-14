@@ -205,7 +205,7 @@ public class Trampoline extends Entity {
 	}
 
 	public void setLifetime(float t) {
-		if (t < 0) LIFE_TIME = game.TOTAL_TIME*2;
+		if (t < 0) LIFE_TIME = GameActivity.TOTAL_TIME*2;
 		
 		else LIFE_TIME = t;
 	}

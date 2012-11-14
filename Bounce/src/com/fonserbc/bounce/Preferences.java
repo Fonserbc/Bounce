@@ -25,7 +25,7 @@ public class Preferences extends Activity implements OnClickListener, OnRatingBa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
         
-        Typeface font = Typeface.createFromAsset(getAssets(), "fonts/Minecraftia.ttf");
+        Typeface font = Typeface.createFromAsset(getAssets(), getString(R.string.font));
         
         ((TextView) findViewById(R.id.settings_title)).setTypeface(font);
         ((TextView) findViewById(R.id.sound_music)).setTypeface(font);

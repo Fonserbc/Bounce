@@ -10,7 +10,7 @@ import android.graphics.Rect;
 public class CollectibleSprite {
 
 	private static final int AUG = 4;
-	private static final float FREQUENCY = 0.1f;
+	private static final float FREQUENCY = 0.05f;
 	private static final float DEAD_TIME = 0.4f;
 
 	Collectible col;

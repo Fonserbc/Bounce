@@ -33,12 +33,13 @@
         </activity>
         <activity
             android:name=".TutorialActivity"
-            android:label="@string/title_activity_tutorial" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            android:label="@string/title_activity_main"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".RankingActivity"
+            android:label="@string/title_activity_main"
+            android:screenOrientation="portrait" >
         </activity>
     </application>
 

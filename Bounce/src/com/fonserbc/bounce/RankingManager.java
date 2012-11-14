@@ -11,7 +11,12 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 
 public class RankingManager {
 	
@@ -61,6 +66,7 @@ public class RankingManager {
 			
 			in = context.openFileInput(FILE_NAME);
 		}
+		//initFile();
 		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
 		
@@ -106,13 +112,13 @@ public class RankingManager {
 			for (int i = 0; i < 3; ++i) {
 				for (int j = 0; j < RANKING_LENGTH; ++j) {
 					if (Ranking[i][j].name == "---") break;
-					else writer.write(Ranking[i][j].name);
+					else writer.write(Ranking[i][j].name+" ");
 				}
 				writer.newLine();
 				
 				for (int j = 0; j < RANKING_LENGTH; ++j) {
 					if (Ranking[i][j].points <= -1) break;
-					else writer.write(((Integer)(Ranking[i][j].points)).toString());
+					else writer.write(((Integer)(Ranking[i][j].points)).toString()+" ");
 				}
 				writer.newLine();
 			}
@@ -126,5 +132,41 @@ public class RankingManager {
 		}
 		
 		
+	}
+
+	public void fillTable(TableLayout table, int i) {
+		Typeface font = Typeface.createFromAsset(context.getAssets(), context.getString(R.string.font));
+		
+		for (int j = 0; j < RANKING_LENGTH; ++j) {
+			TableRow row = (TableRow)LayoutInflater.from(context).inflate(R.layout.attr_row, null);
+			
+			((TextView)row.findViewById(R.id.row_name)).setText(Ranking[i][j].name);
+			((TextView)row.findViewById(R.id.row_name)).setTypeface(font);
+			
+			if (Ranking[i][j].points >= 0)
+				((TextView)row.findViewById(R.id.row_points)).setText(((Integer)Ranking[i][j].points).toString());
+			else ((TextView)row.findViewById(R.id.row_points)).setText("-");
+			((TextView)row.findViewById(R.id.row_points)).setTypeface(font);
+			
+			table.addView(row);
+		}
+	}
+
+	public boolean isWorth(int mode, int points) {
+		return Ranking[mode][RANKING_LENGTH-1].points < points;
+	}
+
+	public void register(int mode, String name, int points) {
+		int j = RANKING_LENGTH-1;
+		while (j > 0 && Ranking[mode][j-1].points < points) {
+			Ranking[mode][j].name = String.copyValueOf(Ranking[mode][j-1].name.toCharArray());
+			Ranking[mode][j].points = Ranking[mode][j-1].points;
+			--j;
+		}
+		Log.v("BOUNCE", "Putting it in position "+j);
+		Ranking[mode][j].name = name;
+		Ranking[mode][j].points = points;
+		
+		saveRanking();		
 	}
 }

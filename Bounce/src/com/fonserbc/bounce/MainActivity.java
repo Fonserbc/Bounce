@@ -32,7 +32,7 @@ public class MainActivity extends Activity implements OnClickListener {
         Button howto = (Button)findViewById(R.id.howto_button);
         Button settings = (Button)findViewById(R.id.settings_button);
         
-        font = Typeface.createFromAsset(getAssets(), "fonts/Minecraftia.ttf");
+        font = Typeface.createFromAsset(getAssets(), getString(R.string.font));
         ((TextView) findViewById(R.id.main_title)).setTypeface(font);
         play.setTypeface(font);
         ranking.setTypeface(font);
@@ -71,8 +71,10 @@ public class MainActivity extends Activity implements OnClickListener {
 			startActivity(new Intent (this, Preferences.class));
 			break;
 		case R.id.howto_button:
-			Log.v("BOUNCE", "HOWTO LAUNCHING");
 			startActivity(new Intent(this, TutorialActivity.class));
+			break;
+		case R.id.ranking_button:
+			startActivity(new Intent(this, RankingActivity.class));
 			break;
 		}
 	}

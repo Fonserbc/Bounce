@@ -1,0 +1,13 @@
+The goal of the game is to get as many points as possible by collecting stars before the time runs out!
+
+Every time you collect a star bonus time is added to the clock.
+
+To collect the stars you have to draw rainbow trampolines to make the characters bounce around without falling down.
+
+The smaller the trampoline, the higher the bounce!
+
+The trampolines you draw don't stay forever so be ready to draw another!
+
+The game gives you a premade big trampoline that doesn't run out until someone bounces on it.
+
+The difficulty changes the number of characters you can have at the same time and the game speed.
