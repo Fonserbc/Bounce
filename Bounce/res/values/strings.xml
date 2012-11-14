@@ -28,5 +28,7 @@
     <string name="music">Music</string>
     <string name="menu_howto">How to play</string>
     <string name="menu_ranking">Rankings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_tutorial">TutorialActivity</string>
 
 </resources>

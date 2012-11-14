@@ -458,7 +458,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 
 	public void doStart() {
 		characterImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.character_sheet_big), mWidth/2, mHeight/4, false);
-		collectibleImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.pigeon_sheet_big), mWidth/2, mHeight/8, false);
+		collectibleImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.star_sheet_big), mWidth/2, mHeight/8, false);
 		liveImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.heart_big), mWidth/16, mHeight/32, false);
 		
 		float defTrampXm = mWidth/16;

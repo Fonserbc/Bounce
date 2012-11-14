@@ -32,7 +32,7 @@
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <Button
-            android:id="@+id/howto_button"
+            android:id="@+id/ranking_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|center_horizontal"
@@ -40,7 +40,7 @@
             android:textAppearance="?android:attr/textAppearanceLarge" />
         
         <Button
-            android:id="@+id/ranking_button"
+            android:id="@+id/howto_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|center_horizontal"

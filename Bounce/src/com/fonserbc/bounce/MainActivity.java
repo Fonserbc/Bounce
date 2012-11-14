@@ -17,7 +17,6 @@ public class MainActivity extends Activity implements OnClickListener {
 	private static final int GAME_RESULT = 1;
 	
 	private Intent game;
-	private Intent settings;
 	
 	private Typeface font;
 	
@@ -66,13 +65,14 @@ public class MainActivity extends Activity implements OnClickListener {
 		switch (v.getId()) {
 		case R.id.play:
 			game = new Intent (this, GameActivity.class);
-			
 			startActivityForResult(game, GAME_RESULT);
 			break;
 		case R.id.settings_button:
-			settings = new Intent (this, Preferences.class);
-			startActivity(settings);
-			
+			startActivity(new Intent (this, Preferences.class));
+			break;
+		case R.id.howto_button:
+			Log.v("BOUNCE", "HOWTO LAUNCHING");
+			startActivity(new Intent(this, TutorialActivity.class));
 			break;
 		}
 	}
