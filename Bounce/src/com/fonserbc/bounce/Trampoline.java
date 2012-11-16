@@ -182,16 +182,13 @@ public class Trampoline extends Entity {
 		float length = aux.magnitude();
 		if (length <= 0) {
 			die();
-			Log.v("BOUNCE", "Trampoline was 0, aborting");
 		}
 		else if (game.getTrampolinesCont() > game.MAX_TRAMPOLINES) {
 			die();
-			Log.v("BOUNCE", "Too much trampolines, aborting");
 		}
 		else {
 			if (length < MIN_LENGTH*1.5 && length > 0) {
 				Vector2f aux2 = aux.normalized().scale(MIN_LENGTH*1.5f);
-				Log.v("BOUNCE", "Trampoline too small: was "+length+" now is "+aux2.magnitude());
 				float dx = (aux2.x/2 - aux.x/2);
 				float dy = (aux2.y/2 - aux.y/2);
 				line[0] -= dx;

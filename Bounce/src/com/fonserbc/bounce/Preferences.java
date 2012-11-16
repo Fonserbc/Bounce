@@ -72,7 +72,6 @@ public class Preferences extends Activity implements OnClickListener, OnRatingBa
 	public void onRatingChanged(RatingBar v, float rating, boolean user) {
 		switch (v.getId()) {
 		case R.id.difficulty_rating:
-			Log.v("BOUNCE", ""+rating);
 			int aux = 0;
 			if (rating <= 1f) aux = 0;
 			else if (rating <= 2f) aux = 1;

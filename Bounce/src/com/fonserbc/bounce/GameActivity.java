@@ -41,6 +41,8 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	 * 
 	 */
 	public static final String QUITTING_ID = "quitting";
+	public static final String POINTS_ID = "points";
+	public static final String DIFFICULTY_ID = "difficulty";
 	public static final String SOUND_ON_ID = "soundOn";
 	
 	public static final int DEF_LIFES = 6;
@@ -80,6 +82,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	public AlertDialog pauseMenu;
 		boolean quitting = false;
 	public AlertDialog sureMenu;
+	public AlertDialog registerMenu;
     
 	Resources res;
 	SharedPreferences mPrefs;
@@ -99,8 +102,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			int sound_hit;
 			int sound_power_up;
 			int sound_fuse;
-			
-	private RankingManager ranking;
 	
 	/****************/
 	/** GAME STUFF **/
@@ -142,8 +143,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        Log.v("BOUNCE", "Activity onCreate");
-        
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         
@@ -161,28 +160,19 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
         else {
         	Log.v("BOUNCE", "No saved instance");
         }
-        
-        try {
-			ranking = RankingManager.getInstance(getBaseContext());
-		} catch (IOException e) {
-			Log.v("BOUNCE", "Could not open rankings");
-		}
     }
 
 	protected void onRestart() {
     	super.onStart();
-    	Log.v("BOUNCE", "onRestart");
     	needPauseMenu = true;
     }
     
     protected void onStart() {
     	super.onStart();
-    	Log.v("BOUNCE", "onStart");
     }
     
     protected void onResume() {
     	super.onResume();
-    	Log.v("BOUNCE", "onResume");
     	gameView = (SurfaceView) findViewById(R.id.game_view);
     	mSurfaceHolder = gameView.getHolder();
     	mSurfaceHolder.setSizeFromLayout();
@@ -202,7 +192,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     protected void onPause() {
     	if (sureMenu != null) sureMenu.cancel();
     	if (pauseMenu == null) popPauseMenu();
-    	Log.v("BOUNCE", "onPause");
     	stopThread();
     	if (pauseMenu != null) pauseMenu.dismiss();
     	super.onPause();
@@ -211,11 +200,9 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     protected void onStop() {
     	super.onStop();
     	if (player != null) player.release();
-    	Log.v("BOUNCE", "onStop");
     }
     
     private void stopThread() {
-    	Log.v("BOUNCE", "stopThread");
     	if (thread != null) {
 			mRun = false;
 			mAlive = false;
@@ -235,13 +222,11 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.v("BOUNCE", "on Save Instance State");
     }
     
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
     	super.onRestoreInstanceState(savedInstanceState);
-    	Log.v("BOUNCE", "on Restore Instance State");
     }
     
     
@@ -263,7 +248,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	}
 	
 	private void popPauseMenu() {
-		Log.v("BOUNCE", "Popping pause menu");
 		final GameActivity that = this;
 		View pauseView = getLayoutInflater().inflate(R.layout.pause_menu, null);
 		((TextView) pauseView.findViewById(R.id.game_paused)).setTypeface(font);
@@ -324,11 +308,9 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		switch(state) {
 		case STATE_RUNNING:
 			mRun = true;
-			Log.v("BOUNCE", "setState RUNNING");
 			break;
 		case STATE_PAUSE:
 			mRun = false;
-			Log.v("BOUNCE", "setState PAUSE");
 			break;
 		case STATE_LOSE:
 			if (mMode != STATE_LOSE) endGame();
@@ -341,7 +323,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	}
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-		Log.v("BOUNCE", "surfaceChanged");
 		mWidth = width;
 		mHeight = height;
 		setState(STATE_RUNNING);
@@ -384,7 +365,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	}
 	
 	public void init() {
-		Log.v("BOUNCE", "Init");
 		res = getResources();
 		
 		switch (mDifficulty) {
@@ -480,7 +460,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 
 	            if (singleDraw) {
 	            	singleDraw = false;
-	            	Log.v("BOUNCE", "Single Draw");
 	            	setState(STATE_PAUSE);
 	            }
 	        }
@@ -680,10 +659,12 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	}
 	
 	private void endGame() {
-		if (ranking.isWorth(mDifficulty, mPoints)) {
-			ranking.register(mDifficulty, "TestName", mPoints);
-		}
+		setState(STATE_PAUSE);
+		Intent resultIntent = new Intent();
+		resultIntent.putExtra(POINTS_ID, mPoints);
+		resultIntent.putExtra(DIFFICULTY_ID, mDifficulty);
 		
+		setResult(Activity.RESULT_OK, resultIntent);
 		finish();		
 	}
 }

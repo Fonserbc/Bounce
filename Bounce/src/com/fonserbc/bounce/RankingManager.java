@@ -76,7 +76,6 @@ public class RankingManager {
 		for (int i = 0; i < 3; ++i) {
 			String line = reader.readLine();
 			String[] names = line.split(" ");
-			//Log.v("BOUNCE", "names lenght de "+i+" is "+names.length);
 			for (int j = 0; j < RANKING_LENGTH; ++j) {
 				if (j >= names.length || names[j].equals("")) Ranking[i][j].name = "---";
 				else Ranking[i][j].name = names[j];
@@ -84,7 +83,6 @@ public class RankingManager {
 			
 			line = reader.readLine();
 			String[] points = line.split(" ");
-			//Log.v("BOUNCE", "Points lenght de "+i+" is "+points.length);
 			for (int j = 0; j < RANKING_LENGTH; ++j) {
 				if (j >= points.length || names[j].equals("")) Ranking[i][j].points = -1;
 				else Ranking[i][j].points = Integer.parseInt(points[j]);
@@ -168,7 +166,6 @@ public class RankingManager {
 			Ranking[mode][j].points = Ranking[mode][j-1].points;
 			--j;
 		}
-		Log.v("BOUNCE", "Putting it in position "+j);
 		Ranking[mode][j].name = name;
 		Ranking[mode][j].points = points;
 		

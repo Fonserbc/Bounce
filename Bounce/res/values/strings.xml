@@ -35,4 +35,11 @@
 	<string name="sure_erase">Are you sure you want erase the Ranking data? This will reset each saved data from any difficulty!</string>
 	<string name="error_erase">ERROR! Could not reset ranking</string>
 	<string name="ok">Continue</string>
+	<string name="nice_score">Nice score!</string>
+	<string name="register_got">"You got "</string>
+	<string name="points">" points!"</string>
+	<string name="register_save">Save</string>
+	<string name="register_enter">Enter your name</string>
+	<string name="def_name">AAA</string>
+	<string name="def_points">9001</string>
 </resources>
