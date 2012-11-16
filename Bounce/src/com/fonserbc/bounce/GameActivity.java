@@ -540,6 +540,8 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			}
 			if (characters.size() == 0 && lives == 0) setState(STATE_LOSE);
 			
+			//if (lives == 0) Log.v("BOUNCE", collectibles.size()+"");
+			
 			/** COLLECTIBLES SPAWN **/
 			if (collectibles.size() < MAX_COLLECTIBLES) {
 				collectibleSpawnTime += deltaTime;

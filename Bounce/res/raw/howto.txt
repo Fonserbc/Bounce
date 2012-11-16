@@ -6,6 +6,8 @@ To collect the stars you have to draw rainbow trampolines to make the characters
 
 The smaller the trampoline, the higher the bounce!
 
+You just can have up to 3 trampolines at the same time.
+
 The trampolines you draw don't stay forever so be ready to draw one when others vanish!
 
 The game gives you a premade big trampoline that doesn't disapear until someone bounces on it.

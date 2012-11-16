@@ -124,9 +124,9 @@ public class Collectible extends Entity {
 	public void die() {		
 		if (!leaving) {
 			game.playSound(R.raw.power_up);
-			dead = true;
 			sprite.die();
 		}
+		dead = true;
 	}
 	
 	public void destroy() {
