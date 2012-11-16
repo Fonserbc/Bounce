@@ -32,7 +32,7 @@
     <string name="title_activity_tutorial">TutorialActivity</string>
     <string name="title_activity_ranking">RankingActivity</string>
 	<string name="menu_clear_ranking">Delete ranking data</string>
-	<string name="sure_erase">Are you sure you want erase the Ranking data? This will reset each saved data from any difficulty!</string>
+	<string name="sure_erase">Are you sure you want erase the Ranking data? This will reset any saved data from every difficulty!</string>
 	<string name="error_erase">ERROR! Could not reset ranking</string>
 	<string name="ok">Continue</string>
 	<string name="nice_score">Nice score!</string>
