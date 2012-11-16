@@ -35,6 +35,7 @@
 	<string name="sure_erase">Are you sure you want erase the Ranking data? This will reset any saved data from every difficulty!</string>
 	<string name="error_erase">ERROR! Could not reset ranking</string>
 	<string name="ok">Continue</string>
+	<string name="error_name">Name can\'t be empty</string>
 	<string name="nice_score">Nice score!</string>
 	<string name="register_got">"You got "</string>
 	<string name="points">" points!"</string>

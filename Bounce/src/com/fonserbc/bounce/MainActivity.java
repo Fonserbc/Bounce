@@ -14,6 +14,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity implements OnClickListener {
 
@@ -28,6 +29,8 @@ public class MainActivity extends Activity implements OnClickListener {
 	private String mName;
 	int mPoints;
 	int mDifficulty;
+	
+	private int toastDuration = 1;
 	
 	AlertDialog registerMenu;
 	
@@ -126,8 +129,14 @@ public class MainActivity extends Activity implements OnClickListener {
 		((Button) registerView.findViewById(R.id.register_save)).setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				that.mName = ((TextView) (((View)v.getParent()).findViewById(R.id.register_edit))).getText().toString();
-				that.returnNameAndEnd();
-				that.registerMenu.cancel();
+				if (that.mName.length() > 0) {
+					that.returnNameAndEnd();
+					that.registerMenu.cancel();
+				}
+				else {
+					Toast toast = Toast.makeText(getBaseContext(), getString(R.string.error_name), toastDuration);
+					toast.show();
+				}
 			}
 		});
 		
