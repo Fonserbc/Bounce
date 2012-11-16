@@ -9,11 +9,13 @@
 	<TextView
 	    android:id="@+id/row_name"
 	    android:gravity="left"
-	    android:layout_marginLeft="@dimen/small_size"/>
+	    android:layout_marginLeft="@dimen/small_size"
+	    android:textAppearance="?android:attr/textAppearanceLarge" />
 	
 	<TextView
 	    android:id="@+id/row_points"
 	    android:gravity="right"
-	    android:layout_marginLeft="@dimen/small_size"/>
+	    android:layout_marginLeft="@dimen/small_size"
+	    android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </TableRow>

@@ -14,19 +14,72 @@
         android:text="@string/menu_ranking"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TableLayout
-        android:id="@+id/table"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="false"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentRight="false"
-        android:layout_alignParentTop="false"
-        android:layout_below="@+id/ranking_title"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:gravity="center_vertical|center_horizontal" >
+    <TabHost
+        android:id="@android:id/tabhost"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/ranking_title" >
 
-    </TableLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <TabWidget
+                android:id="@android:id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+            </TabWidget>
+
+            <FrameLayout
+                android:id="@android:id/tabcontent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" >
+
+                <ScrollView 
+                    android:id="@+id/scroll_easy"
+                    android:layout_width="fill_parent"
+  					android:layout_height="match_parent" >
+                    <TableLayout
+                        android:id="@+id/table_easy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:gravity="center_horizontal" >
+
+				    </TableLayout>
+				</ScrollView>
+
+                <ScrollView 
+                    android:id="@+id/scroll_normal"
+                    android:layout_width="fill_parent"
+  					android:layout_height="match_parent" >
+				    <TableLayout
+				        android:id="@+id/table_normal"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:layout_gravity="center_horizontal"
+				        android:gravity="center_horizontal" >
+
+				    </TableLayout>
+				</ScrollView>
+				    
+                <ScrollView 
+                    android:id="@+id/scroll_hard"
+                    android:layout_width="fill_parent"
+  					android:layout_height="match_parent" >
+					<TableLayout
+					    android:id="@+id/table_hard"
+					    android:layout_width="wrap_content"
+					    android:layout_height="wrap_content"
+					    android:layout_gravity="center_horizontal"
+					    android:gravity="center_horizontal" >
+
+				    </TableLayout>
+				</ScrollView>
+            </FrameLayout>
+        </LinearLayout>
+    </TabHost>
 
 </RelativeLayout>

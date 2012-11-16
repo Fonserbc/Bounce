@@ -7,7 +7,6 @@ import java.io.InputStream;
 import android.os.Bundle;
 import android.app.Activity;
 import android.graphics.Typeface;
-import android.view.Menu;
 import android.widget.TextView;
 
 public class TutorialActivity extends Activity {
@@ -44,11 +43,5 @@ public class TutorialActivity extends Activity {
     	}
  
     	return byteArrayOutputStream.toString();
-    }
-
-	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_tutorial, menu);
-        return true;
     }
 }

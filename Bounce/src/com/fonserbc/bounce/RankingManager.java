@@ -58,6 +58,10 @@ public class RankingManager {
 				Ranking[i][j] = new rankingStruct();
 			}
 		
+		readFromFile();
+	}
+	
+	private void readFromFile() throws IOException {
 		FileInputStream in;
 		try {
 			in = context.openFileInput(FILE_NAME);
@@ -66,7 +70,6 @@ public class RankingManager {
 			
 			in = context.openFileInput(FILE_NAME);
 		}
-		//initFile();
 		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
 		
@@ -90,8 +93,9 @@ public class RankingManager {
 		
 		reader.close();
 		in.close();
+
 	}
-	
+
 	private void initFile() throws IOException {
 		FileOutputStream out = context.openFileOutput(FILE_NAME, Context.MODE_PRIVATE);
 		
@@ -137,6 +141,7 @@ public class RankingManager {
 	public void fillTable(TableLayout table, int i) {
 		Typeface font = Typeface.createFromAsset(context.getAssets(), context.getString(R.string.font));
 		
+		table.removeAllViewsInLayout();
 		for (int j = 0; j < RANKING_LENGTH; ++j) {
 			TableRow row = (TableRow)LayoutInflater.from(context).inflate(R.layout.attr_row, null);
 			
@@ -168,5 +173,10 @@ public class RankingManager {
 		Ranking[mode][j].points = points;
 		
 		saveRanking();		
+	}
+
+	public void resetData() throws IOException {
+		initFile();
+		readFromFile();
 	}
 }
