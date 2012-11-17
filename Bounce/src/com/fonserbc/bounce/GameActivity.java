@@ -102,6 +102,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			int sound_hit;
 			int sound_power_up;
 			int sound_fuse;
+	private boolean musicPlaying = false;
 	
 	/****************/
 	/** GAME STUFF **/
@@ -194,6 +195,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     	if (pauseMenu == null) popPauseMenu();
     	stopThread();
     	if (pauseMenu != null) pauseMenu.dismiss();
+    	musicPlaying = false;
     	super.onPause();
     }
     
@@ -311,6 +313,9 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 			break;
 		case STATE_PAUSE:
 			mRun = false;
+			if (musicPlaying && player != null) {
+				player.pause();
+			}
 			break;
 		case STATE_LOSE:
 			if (mMode != STATE_LOSE) endGame();
@@ -419,7 +424,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 
 	public void doStart() {
 		characterImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.character_sheet_big), mWidth/2, mHeight/4, false);
-		collectibleImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.star_sheet_big), mWidth/2, mHeight/8, false);
+		collectibleImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.star_sheet_big), mWidth*2/5, mHeight/8, false);
 		liveImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(res, R.drawable.heart_big), mWidth/16, mHeight/32, false);
 		
 		float defTrampXm = mWidth/16;
@@ -431,9 +436,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		trampolines.add(aux);
 	}
 
-	public void run() {
-		playMusic();
-		
+	public void run() {		
 		boolean singleDraw = false;
 		if (needPauseMenu && wasSurfaceDestroyed) {
 			singleDraw = true;
@@ -468,6 +471,14 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	
 	private void update() {
 		float deltaTime = timer.tick()/(1f + mTimeSlow);
+		
+		if (!musicPlaying) {
+			playMusic();
+			musicPlaying = true;
+		}
+		else if (player != null && !player.isPlaying() && mMode != STATE_PAUSE) {
+			player.start();
+		}
 		
 		synchronized (trampolines) {
 			synchronized (characters) {
@@ -643,7 +654,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		if (soundOn && musicOn) {
 			player = MediaPlayer.create(getBaseContext(), R.raw.bounce);
 			player.setLooping(true);
-			player.setVolume(volume*0.7f,  volume*0.7f);
+			player.setVolume(volume*0.5f,  volume*0.5f);
 			player.start();
 		}
 	}
@@ -663,7 +674,7 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 	private void endGame() {
 		setState(STATE_PAUSE);
 		Intent resultIntent = new Intent();
-		resultIntent.putExtra(POINTS_ID, mPoints);
+		resultIntent.putExtra(POINTS_ID, mPoints+50*lives);
 		resultIntent.putExtra(DIFFICULTY_ID, mDifficulty);
 		
 		setResult(Activity.RESULT_OK, resultIntent);
