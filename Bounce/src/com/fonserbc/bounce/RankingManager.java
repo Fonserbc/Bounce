@@ -143,13 +143,16 @@ public class RankingManager {
 		for (int j = 0; j < RANKING_LENGTH; ++j) {
 			TableRow row = (TableRow)LayoutInflater.from(context).inflate(R.layout.attr_row, null);
 			
+			((TextView)row.findViewById(R.id.row_pos)).setText((j+1)+"");
+			((TextView)row.findViewById(R.id.row_pos)).setTypeface(font);
+			
 			((TextView)row.findViewById(R.id.row_name)).setText(Ranking[i][j].name);
 			((TextView)row.findViewById(R.id.row_name)).setTypeface(font);
 			
 			if (Ranking[i][j].points >= 0)
 				((TextView)row.findViewById(R.id.row_points)).setText(((Integer)Ranking[i][j].points).toString());
 			else ((TextView)row.findViewById(R.id.row_points)).setText("-");
-			((TextView)row.findViewById(R.id.row_points)).setTypeface(font);
+				((TextView)row.findViewById(R.id.row_points)).setTypeface(font);
 			
 			table.addView(row);
 		}

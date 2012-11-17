@@ -1,11 +1,13 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/scroll" android:layout_width="fill_parent"
-  android:layout_height="match_parent" >
+    android:id="@+id/scroll"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray" >
 
 	<LinearLayout android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:orientation="vertical" >
-		
+		
 	        <TextView
 	            android:id="@+id/settings_title"
 	            android:layout_width="wrap_content"
@@ -14,7 +16,8 @@
 	            android:layout_marginBottom="@dimen/normal_size"
 	            android:layout_marginTop="@dimen/normal_size"
 	            android:text="@string/menu_settings"
-	            android:textAppearance="?android:attr/textAppearanceLarge" />
+	            android:textAppearance="?android:attr/textAppearanceLarge"
+	            android:textStyle="bold" />
 								
 	        <TextView
 	            android:id="@+id/sound_music"
@@ -32,7 +35,7 @@
 	            android:layout_marginLeft="@dimen/normal_size"
 	            android:layout_marginRight="@dimen/normal_size"
 	            android:max="5" />
-						
+						
 	        <CheckBox
 	            android:id="@+id/sound_on"
 	            android:layout_width="wrap_content"
@@ -41,8 +44,9 @@
 	            android:layout_marginLeft="@dimen/normal_size"
 	            android:checked="true"
 	            android:text="@string/sound"
-	            android:textAppearance="?android:attr/textAppearanceMedium" />
-															
+	            android:textAppearance="?android:attr/textAppearanceMedium"
+	            android:textColor="@color/white" />
+															
 	        <CheckBox
 	            android:id="@+id/music_on"
 	            android:layout_width="wrap_content"
@@ -50,7 +54,8 @@
 	            android:layout_marginLeft="@dimen/large_size"
 	            android:checked="true"
 	            android:text="@string/music"
-	            android:textAppearance="?android:attr/textAppearance" />
+	            android:textAppearance="?android:attr/textAppearance"
+	            android:textColor="@color/white" />
 		
 	<TextView
 	    android:id="@+id/difficulty"
@@ -71,7 +76,7 @@
 	                    android:layout_height="wrap_content"
 	                    android:layout_marginLeft="@dimen/normal_size"
 	                    android:numStars="3" />
-						
+						
 	                <TextView
 	                    android:id="@+id/difficulty_text"
 	                    android:layout_width="wrap_content"
@@ -80,6 +85,7 @@
 	                    android:layout_marginLeft="@dimen/normal_size"
 	                    android:text="@string/difficulty_easy"
 	                    android:textAppearance="?android:attr/textAppearanceMedium"
+	                    android:textColor="@color/white"
 	                    android:textColorHint="@android:color/primary_text_light" />
 	
 	            </LinearLayout>
