@@ -3,16 +3,16 @@ package com.fonserbc.bounce;
 import java.io.IOException;
 
 import android.os.Bundle;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.TabActivity;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
+import android.view.MotionEvent;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TabHost;
@@ -21,9 +21,14 @@ import android.widget.TabWidget;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-public class RankingActivity extends TabActivity {
+public class RankingActivity extends TabActivity implements OnGestureListener {
+	
+	public static final float MIN_LENGTH = 20;
+	public static final float MIN_VEL = 100;
 
 	private RankingManager ranking;
+	
+	private GestureDetector gestures;
 	
 	Typeface font;
 	
@@ -31,6 +36,8 @@ public class RankingActivity extends TabActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ranking);
+        
+        gestures = new GestureDetector(this);
         
         font = Typeface.createFromAsset(getAssets(), getString(R.string.font));
         
@@ -124,5 +131,59 @@ public class RankingActivity extends TabActivity {
 		((TextView) sureMenu.findViewById(android.R.id.message)).setTypeface(font);
 		((TextView) sureMenu.findViewById(android.R.id.button1)).setTypeface(font);
 		((TextView) sureMenu.findViewById(android.R.id.button2)).setTypeface(font);
+	}
+	
+	public void fling(float dX) {
+		TabHost host = getTabHost();
+		int tab = host.getCurrentTab();
+		if (dX < 0) {
+			if (tab < 2) tab += 1;
+		}
+		else {
+			if (tab > 0) tab -= 1;
+		}
+		host.setCurrentTab(tab);
+	}
+
+	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+			float velocityY) {
+        if (e1==null || e2==null)
+            return false;
+        float dX = e2.getX()-e1.getX();
+        
+        if ((dX > MIN_LENGTH || dX < -MIN_LENGTH) && Math.abs(velocityX) > MIN_VEL) {
+        	fling(dX);
+        	return true;
+        }
+        else return false;
+	}
+	
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent ev) {
+	    if (gestures != null) {
+	        if (gestures.onTouchEvent(ev))
+	            return true;
+	    }
+	    return super.dispatchTouchEvent(ev);
+	}
+
+	public boolean onDown(MotionEvent e) {
+		return false;
+	}
+
+	public void onLongPress(MotionEvent e) {
+		
+	}
+
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+			float distanceY) {
+		return false;
+	}
+
+	public void onShowPress(MotionEvent e) {
+	}
+
+	public boolean onSingleTapUp(MotionEvent e) {
+		return false;
 	}
 }

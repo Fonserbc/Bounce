@@ -84,8 +84,15 @@ public class RankingManager {
 			line = reader.readLine();
 			String[] points = line.split(" ");
 			for (int j = 0; j < RANKING_LENGTH; ++j) {
-				if (j >= points.length || names[j].equals("")) Ranking[i][j].points = -1;
-				else Ranking[i][j].points = Integer.parseInt(points[j]);
+				if (j >= points.length || points[j].equals("")) Ranking[i][j].points = -1;
+				else {
+					try {
+						Ranking[i][j].points = Integer.parseInt(points[j]);
+					}
+					catch (NumberFormatException e) {
+						Ranking[i][j].points = -1;
+					}
+				}
 			}
 		}
 		
