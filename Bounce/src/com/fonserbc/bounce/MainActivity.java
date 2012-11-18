@@ -42,6 +42,7 @@ public class MainActivity extends Activity implements OnClickListener {
         Button ranking = (Button)findViewById(R.id.ranking_button);
         Button howto = (Button)findViewById(R.id.howto_button);
         Button settings = (Button)findViewById(R.id.settings_button);
+        Button about = (Button)findViewById(R.id.about_button);
         
         font = Typeface.createFromAsset(getAssets(), getString(R.string.font));
         ((TextView) findViewById(R.id.main_title)).setTypeface(font);
@@ -49,11 +50,13 @@ public class MainActivity extends Activity implements OnClickListener {
         ranking.setTypeface(font);
         howto.setTypeface(font);
         settings.setTypeface(font);
+        about.setTypeface(font);
         
         play.setOnClickListener(this);
         ranking.setOnClickListener(this);
         howto.setOnClickListener(this);
         settings.setOnClickListener(this);
+        about.setOnClickListener(this);
         
         try {
 			rankingManager = RankingManager.getInstance(getBaseContext());
@@ -86,6 +89,9 @@ public class MainActivity extends Activity implements OnClickListener {
 			break;
 		case R.id.ranking_button:
 			startActivity(new Intent(this, RankingActivity.class));
+			break;
+		case R.id.about_button:
+			startActivity(new Intent(this, AboutActivity.class));
 			break;
 		}
 	}

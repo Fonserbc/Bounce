@@ -37,8 +37,6 @@ public class RankingActivity extends TabActivity implements OnGestureListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ranking);
         
-        gestures = new GestureDetector(this);
-        
         font = Typeface.createFromAsset(getAssets(), getString(R.string.font));
         
         ((TextView)findViewById(R.id.ranking_title)).setTypeface(font);
@@ -80,6 +78,8 @@ public class RankingActivity extends TabActivity implements OnGestureListener {
         }
         
         fillTables();
+        
+        gestures = new GestureDetector(this);
     }
     
     private void fillTables() {
@@ -133,16 +133,19 @@ public class RankingActivity extends TabActivity implements OnGestureListener {
 		((TextView) sureMenu.findViewById(android.R.id.button2)).setTypeface(font);
 	}
 	
-	public void fling(float dX) {
+	public boolean fling(float dX) {
 		TabHost host = getTabHost();
 		int tab = host.getCurrentTab();
 		if (dX < 0) {
 			if (tab < 2) tab += 1;
+			else return false;
 		}
 		else {
 			if (tab > 0) tab -= 1;
+			else return false;
 		}
 		host.setCurrentTab(tab);
+		return true;
 	}
 
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
@@ -152,8 +155,7 @@ public class RankingActivity extends TabActivity implements OnGestureListener {
         float dX = e2.getX()-e1.getX();
         
         if ((dX > MIN_LENGTH || dX < -MIN_LENGTH) && Math.abs(velocityX) > MIN_VEL) {
-        	fling(dX);
-        	return true;
+        	return fling(dX);
         }
         else return false;
 	}

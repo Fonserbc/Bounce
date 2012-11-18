@@ -41,6 +41,10 @@
             android:label="@string/title_activity_main"
             android:screenOrientation="portrait" >
         </activity>
+        <activity
+            android:name=".AboutActivity"
+            android:label="@string/title_activity_main" >
+        </activity>
     </application>
 
 </manifest>
