@@ -12,7 +12,6 @@ import java.nio.charset.Charset;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.TableLayout;
 import android.widget.TableRow;

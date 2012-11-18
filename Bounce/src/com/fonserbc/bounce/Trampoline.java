@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Shader;
-import android.util.Log;
 
 public class Trampoline extends Entity {
 
