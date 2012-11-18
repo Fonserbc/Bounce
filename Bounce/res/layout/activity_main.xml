@@ -15,7 +15,7 @@
 	        android:layout_height="wrap_content"
 	        android:layout_alignParentTop="true"
 	        android:layout_centerHorizontal="true"
-	        android:layout_marginBottom="@dimen/large_size"
+	        android:layout_marginBottom="@dimen/big_size"
 	        android:layout_marginTop="@dimen/large_size"
 	        android:text="@string/title_activity_main"
 	        android:textAppearance="?android:attr/textAppearanceLarge"

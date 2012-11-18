@@ -23,7 +23,7 @@ import android.widget.TextView;
 
 public class RankingActivity extends TabActivity implements OnGestureListener {
 	
-	public static final float MIN_LENGTH = 20;
+	public static final float MIN_LENGTH = 100;
 	public static final float MIN_VEL = 100;
 
 	private RankingManager ranking;
@@ -52,17 +52,17 @@ public class RankingActivity extends TabActivity implements OnGestureListener {
 
         TabSpec easyTab = host.newTabSpec(getString(R.string.difficulty_easy));
         easyTab.setIndicator(getResources().getString(R.string.difficulty_easy));
-        easyTab.setContent(R.id.table_easy);
+        easyTab.setContent(R.id.scroll_easy);
         host.addTab(easyTab);
 
         TabSpec normalTab = host.newTabSpec(getString(R.string.difficulty_normal));
         normalTab.setIndicator(getResources().getString(R.string.difficulty_normal));
-        normalTab.setContent(R.id.table_normal);
+        normalTab.setContent(R.id.scroll_normal);
         host.addTab(normalTab);
         
         TabSpec hardTab = host.newTabSpec(getString(R.string.difficulty_hard));
         hardTab.setIndicator(getResources().getString(R.string.difficulty_hard));
-        hardTab.setContent(R.id.table_hard);
+        hardTab.setContent(R.id.scroll_hard);
         host.addTab(hardTab);
 
         host.setCurrentTabByTag(getString(R.string.difficulty_easy));
