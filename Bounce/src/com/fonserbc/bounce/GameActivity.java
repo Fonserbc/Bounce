@@ -3,11 +3,15 @@ package com.fonserbc.bounce;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
+
 import com.fonserbc.bounce.utils.Timer;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -33,7 +37,22 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class GameActivity extends Activity implements Runnable, SurfaceHolder.Callback {
+public class GameActivity extends Activity implements Runnable, GLSurfaceView.Renderer {
+	
+	/**
+	 * OPENGL
+	 */
+	private GLSurfaceView mGLView;
+	
+	class MyGLSurfaceView extends GLSurfaceView {
+
+		public MyGLSurfaceView(Context context) {
+			super(context);
+			
+			setRenderer((Renderer) context);
+		}
+		
+	}
 	
 	/**
 	 * I'm using tag "BOUNCE" for all the Verbose logs
@@ -150,7 +169,8 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
         
         restorePreferences();
         
-        setContentView(R.layout.game_view);
+        mGLView = new MyGLSurfaceView(this);
+        setContentView(mGLView);
         
         init();
         
@@ -176,7 +196,6 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
     	gameView = (SurfaceView) findViewById(R.id.game_view);
     	mSurfaceHolder = gameView.getHolder();
     	mSurfaceHolder.setSizeFromLayout();
-    	mSurfaceHolder.addCallback(this);
     	gameView.setFocusable(true);
     	gameView.requestFocus();
     	
@@ -678,5 +697,20 @@ public class GameActivity extends Activity implements Runnable, SurfaceHolder.Ca
 		
 		setResult(Activity.RESULT_OK, resultIntent);
 		finish();		
+	}
+
+	public void onDrawFrame(GL10 gl) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void onSurfaceChanged(GL10 gl, int width, int height) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+		// TODO Auto-generated method stub
+		
 	}
 }
